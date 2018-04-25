@@ -1,0 +1,30 @@
+config FREETZ_PACKAGE_CHEROKEE
+	bool "Cherokee HTTP Server 0.99.48"
+	default n
+	help
+
+config FREETZ_PACKAGE_CHEROKEE_FFMPEG
+	bool "Enable FFMpeg support for Cherokee"
+	depends on FREETZ_PACKAGE_CHEROKEE
+	select FREETZ_LIB_libavcodec
+	select FREETZ_LIB_libavformat
+	select FREETZ_LIB_libavutil
+	default n
+	help
+		Link Cherokee against FFMpeg libraries
+
+config FREETZ_PACKAGE_CHEROKEE_SSL
+	bool "Enable SSL support for Cherokee"
+	depends on FREETZ_PACKAGE_CHEROKEE
+	select FREETZ_LIB_libssl
+	default n
+	help
+		Link Cherokee against openssl libraries
+
+config FREETZ_PACKAGE_CHEROKEE_STATIC
+	bool "Statically linked libraries"
+	depends on FREETZ_PACKAGE_CHEROKEE
+	default n
+	help
+		Statically link Cherokee's modules
+

@@ -1,0 +1,31 @@
+config FREETZ_PACKAGE_MOTION
+        bool "motion 3.2.11.1 "
+        default n
+        help
+		Motion is a program that monitors the video signal from
+		one or more cameras and is able to detect if a significant
+		part of the picture has changed. Or in other words, it
+		can detect motion.
+
+		The program is written in C and is made for the Linux
+		operating system.
+
+		Motion is a command line based tool. It has absolutely no
+		graphical user interface. Everything is setup either via
+		the command line or via a set of configuration files
+		(simple ASCII files that can be edited by any ASCII editor).
+
+		The output from motion can be:
+
+			* jpg files
+			* ppm format files
+			* mpeg video sequences
+
+config FREETZ_PACKAGE_MOTION_FFMPEG
+        bool "Build with ffmpeg support"
+	depends on FREETZ_PACKAGE_MOTION
+	select FREETZ_PACKAGE_FFMPEG
+        default n
+        help
+		Build Motion using libavcodec and libavformat from the
+		FFmpeg package.

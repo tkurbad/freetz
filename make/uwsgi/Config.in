@@ -1,0 +1,10 @@
+config FREETZ_PACKAGE_UWSGI
+	bool "uWSGI 0.9.5"
+	depends on FREETZ_PACKAGE_PYTHON
+	depends on FREETZ_LIB_libpython
+	default n
+	help
+		uWSGI is a fast (pure C), self-healing,
+		developer-friendly WSGI server, aimed for
+		professional python webapps deployment
+		and development.
