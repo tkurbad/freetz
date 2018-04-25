@@ -56,14 +56,14 @@ Latest changes:
     * libcap 2.24
     * libgsm-1.0.13
     * libmnl 1.0.4
-    * libnettle 3.3
+    * libnettle 3.4
     * liblz4 1.7.5
     * libonig 6.7.1
     * libsrtp-1.4.4+20100615
     * libssh2 1.8.0
     * libusb-compat 0.1.5
     * lzma1 4.65
-    * mbed TLS 2.7.0
+    * mbed TLS 2.7.2
     * nzbget 14.1
     * PJProject 2.2.1
     * Fritz!Box private key password framework v0.6 (by PeterPawn)
@@ -76,7 +76,7 @@ Latest changes:
     * spandsp 0.0.6pre21
     * squashfs-tools 3.4
     * squashfs-tools 4.3 (modified to support AVM-BE format)
-    * WireGuard 0.0.20180202
+    * WireGuard 0.0.20180420
     * xz 5.2.3
 
 - Updated tools and hooks:
@@ -94,10 +94,10 @@ Latest changes:
     * CCID 1.4.18
     * cifs-utils 6.6
     * cryptsetup 1.7.0
-    * curl 7.58.0
+    * curl 7.59.0
     * davfs2 1.5.2
     * dbus 1.8.20
-    * dnsmasq 2.78
+    * dnsmasq 2.79
     * dosfstools 3.0.28
     * dropbear 2018.76
     * e2fsprogs 1.42.13
@@ -148,7 +148,7 @@ Latest changes:
     * lynx 2.8.8
     * mc 4.8.20
     * minidlna 1.2.1
-    * mpc 1.0.3
+    * mpc 1.1.0
     * mpfr 3.1.6
     * nano 2.4.3
     * ncftp-3.2.6
@@ -158,9 +158,9 @@ Latest changes:
     * ntfs-3g 2017.3.23
     * obexftp 0.23
     * openconnect 7.04
-    * openssh 7.6p1
-    * openssl 0.9.8zh/1.0.2n
-    * openvpn 2.3.18/2.4.5
+    * openssh 7.7p1
+    * openssl 0.9.8zh/1.0.2o
+    * openvpn 2.3.18/2.4.6
     * pcre 8.41
     * pcscd 1.8.12
     * php 5.6.34
@@ -191,7 +191,7 @@ Latest changes:
     * tinc 1.0.33/1.1pre15
     * tinyproxy 1.8.3
     * tmux 2.5
-    * tor 0.3.0.13
+    * tor 0.3.2.10
     * transmission 2.93
     * tree 1.7.0
     * uClibc++ 0.2.5-git
@@ -205,7 +205,7 @@ Latest changes:
     * vnstat 1.17
     * vsftpd 3.0.3
     * vtun 3.0.4
-    * wget 1.19.2
+    * wget 1.19.4
     * xpdf 3.04
     * Zabbix 2.4.6
     * zlib 1.2.11
