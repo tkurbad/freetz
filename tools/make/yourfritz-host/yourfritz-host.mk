@@ -1,6 +1,6 @@
-YOURFRITZ_HOST_VERSION:=11010cf9f8
+YOURFRITZ_HOST_VERSION:=11b6f3f69d
 YOURFRITZ_HOST_SOURCE:=yourfritz-$(YOURFRITZ_HOST_VERSION).tar.xz
-YOURFRITZ_HOST_SITE:=git@https://github.com/PeterPawn/YourFritz.git
+YOURFRITZ_HOST_SITE:=git_no_submodules@https://github.com/PeterPawn/YourFritz.git
 
 YOURFRITZ_HOST_BASH_AS_SHEBANG += signimage/avm_pubkey_to_pkcs8
 YOURFRITZ_HOST_BASH_AS_SHEBANG += signimage/check_signed_image
@@ -16,6 +16,8 @@ YOURFRITZ_HOST_BASH_AS_SHEBANG += eva_tools/image2ram
 
 YOURFRITZ_HOST_BASH_AS_SHEBANG += avm_kernel_config/unpack_kernel.sh
 
+YOURFRITZ_HOST_STRIP_TRAILING_WHITESPACES += bootmanager/gui_bootmanager
+
 YOURFRITZ_HOST_MAKE_DIR:=$(TOOLS_DIR)/make/yourfritz-host
 YOURFRITZ_HOST_DIR:=$(TOOLS_SOURCE_DIR)/yourfritz-$(YOURFRITZ_HOST_VERSION)
 
@@ -28,6 +30,7 @@ $(YOURFRITZ_HOST_DIR)/.unpacked: $(DL_DIR)/$(YOURFRITZ_HOST_SOURCE) | $(TOOLS_SO
 	$(call UNPACK_TARBALL,$(DL_DIR)/$(YOURFRITZ_HOST_SOURCE),$(TOOLS_SOURCE_DIR))
 	$(call APPLY_PATCHES,$(YOURFRITZ_HOST_MAKE_DIR)/patches,$(YOURFRITZ_HOST_DIR))
 	@$(SED) -i -r -e '1 s,^($(_hash)$(_bang)[ \t]*/bin/)(sh),\1ba\2,' $(YOURFRITZ_HOST_BASH_AS_SHEBANG:%=$(YOURFRITZ_HOST_DIR)/%)
+	@$(SED) -i -r -e 's,([ \t])+$(_dollar),,' $(YOURFRITZ_HOST_STRIP_TRAILING_WHITESPACES:%=$(YOURFRITZ_HOST_DIR)/%)
 	touch $@
 
 $(YOURFRITZ_HOST_DIR)/.symlinked: | $(YOURFRITZ_HOST_DIR)/.unpacked

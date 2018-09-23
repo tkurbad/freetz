@@ -271,6 +271,7 @@ enum _avm_kernel_config_tags {
 	avm_kernel_config_tags_device_tree_subrev_255,
 	avm_kernel_config_tags_device_tree_subrev_last = avm_kernel_config_tags_device_tree_subrev_255,
 	avm_kernel_config_tags_avmnet,
+	avm_kernel_config_tags_urlader_env,
 	avm_kernel_config_tags_last
 #endif
 };
@@ -281,9 +282,16 @@ enum _avm_kernel_config_tags {
 	 avm_kernel_config_tags_device_tree_subrev_0 + 1)
 #endif
 
-struct _kernel_modulmemory_config {
+struct _kernel_modulmemory_config2 {
 	char *name;
 	unsigned int size;
+};
+
+struct _kernel_modulmemory_config4 {
+	char *name;
+	unsigned int size;
+	unsigned int symbol_size;       /*---- CONFIG_KALLSYMS_ALL set ---*/
+	unsigned int symbol_text_size;  /*---- CONFIG_KALLSYMS_ALL not set (only text-symbols) ---*/
 };
 
 struct _avm_kernel_config {
@@ -295,6 +303,11 @@ struct _avm_kernel_version_info {
 	char buildnumber[32];
 	char svnversion[32];
 	char firmwarestring[128];
+};
+
+struct _avm_kernel_urlader_env {
+	char name[64];
+	char value[256];
 };
 
 #if !defined(USE_STRIPPED_AVM_KERNEL_CONFIG_H)
