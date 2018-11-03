@@ -82,6 +82,12 @@ shift $((OPTIND-1))
 # At least one action and one (non-empty) firmware image name must be specified
 [ $(($DO_UNPACK + $DO_MOD + $DO_PACK + $DO_ZIP)) -eq 0 -o $# -lt 1 -o $# -gt 3 -o ! "$1" ] && usage >&2 && exit 1
 
+# Check if it's a completely automated run in the "no freetz"-mode and cache the value.
+# We are interested in what the user asked us for and not what we are actually doing,
+# the UNPACK step might be skipped (and the value of DO_UNPACK changed) if the already
+# unpacked firmware is found on the disk.
+[ "$DO_UNPACK" -gt 0 -a "$DO_MOD" -eq 0 -a "$DO_PACK" -gt 0 ] && NO_FREETZ_AUTOMATED_RUN=1 || NO_FREETZ_AUTOMATED_RUN=0
+
 # Freetz base + tools directories
 BASE_DIR="$(dirname "$0")"
 ABS_BASE_DIR="$(readlink -f "$BASE_DIR")"
@@ -776,7 +782,7 @@ if [ "$DO_MOD" -gt 0 ]; then
 	[ -d "$LUA_MOD_DIR" ] && echo1 "LUA directory: ${LUA_MOD_DIR}" || FREETZ_AVM_HAS_ONLY_HTML=y
 
 	# Determine $MODULES_DIR in AVM image, eg: "${FILESYSTEM_MOD_DIR}/lib/modules/2.6.19.2
-	MODULES_DIR="$(find ${FILESYSTEM_MOD_DIR}/lib/modules/2.6.* ${FILESYSTEM_MOD_DIR}/lib/modules/3.*.* -maxdepth 0 -type d 2>/dev/null)"
+	MODULES_DIR="$(find ${FILESYSTEM_MOD_DIR}/lib/modules/2.6.* ${FILESYSTEM_MOD_DIR}/lib/modules/[34].*.* -maxdepth 0 -type d 2>/dev/null)"
 	[ ! -d "$MODULES_DIR" ] && error 1 "Cannot find modules dir."
 	# Set $MODULES_SUBDIR relative to root dir in AVM image, eg: "lib/modules/2.6.19.2
 	MODULES_SUBDIR="${MODULES_DIR#${FILESYSTEM_MOD_DIR}/}"
@@ -854,8 +860,9 @@ if [ "$DO_MOD" -gt 0 ]; then
 		echo "$pkg" >> "${PACKAGES_LIST_FILE}"
 	done
 
+	KERNEL_ID="${FREETZ_SYSTEM_TYPE}${FREETZ_SYSTEM_TYPE_CORE_SUFFIX}-${FREETZ_AVM_SOURCE_ID}"
 	if [ "$FIRMWARE_NOCOMPILE" != "1" -a "$FREETZ_REPLACE_KERNEL" == "y" -a "$FWMOD_PATCH_TEST" != "y" ]; then
-		KERNEL_SUBVERSION_FILE="${KERNEL_REP_DIR}/.version-${FREETZ_KERNEL_LAYOUT}-${FREETZ_AVM_SOURCE_ID}"
+		KERNEL_SUBVERSION_FILE="${KERNEL_REP_DIR}/.version-${KERNEL_ID}"
 
 		if [ ! -r "$KERNEL_SUBVERSION_FILE" ]; then
 			error 1 "cannot determine kernel version"
@@ -1202,19 +1209,19 @@ if [ "$DO_MOD" -gt 0 ]; then
 	if [ "$NOCOMPILE" != "1" -a "$FREETZ_REPLACE_KERNEL" == "y" ]; then
 		echo0 "replacing kernel"
 
-		if [ ! -r "${KERNEL_REP_DIR}/kernel-${FREETZ_KERNEL_LAYOUT}-${FREETZ_AVM_SOURCE_ID}.bin" ]; then
-			error 1 "can't find kernel for ref ${FREETZ_KERNEL_LAYOUT}-${FREETZ_AVM_SOURCE_ID}"
+		if [ ! -r "${KERNEL_REP_DIR}/kernel-${KERNEL_ID}.bin" ]; then
+			error 1 "can't find kernel for ref ${KERNEL_ID}"
 		fi
 
-		echo1 "replacing kernel-${FREETZ_KERNEL_LAYOUT}-${FREETZ_AVM_SOURCE_ID} (${KERNEL_SUBVERSION})"
-		cp "${KERNEL_REP_DIR}/kernel-${FREETZ_KERNEL_LAYOUT}-${FREETZ_AVM_SOURCE_ID}.bin" "$RAW_KERNEL_MOD"
+		echo1 "replacing kernel-${KERNEL_ID} (${KERNEL_SUBVERSION})"
+		cp "${KERNEL_REP_DIR}/kernel-${KERNEL_ID}.bin" "$RAW_KERNEL_MOD"
 	fi
 
 	# modules directory / correctly configured kernel version
 	echo1 "checking kernel version"
 	echo2 "... used by AVM ...... ${MODULES_SUBDIR##*/}"
-	echo2 "... used by Freetz ... ${FREETZ_MODULES_KVER}"
-	if [ "lib/modules/${FREETZ_MODULES_KVER}" != "$MODULES_SUBDIR" ]; then
+	echo2 "... used by Freetz ... ${FREETZ_KERNEL_VERSION_MODULES_SUBDIR}"
+	if [ "lib/modules/${FREETZ_KERNEL_VERSION_MODULES_SUBDIR}" != "$MODULES_SUBDIR" ]; then
 		if [ "$FREETZ_REPLACE_MODULE_AVAILABLE" == "y" ]; then
 			error 1 "Freetz and AVM kernel versions do not match. Wrong kernel version configuration in Freetz?"
 		else
@@ -1227,14 +1234,14 @@ if [ "$DO_MOD" -gt 0 ]; then
 		echo0 "installing$strip_output modules"
 		for i in \
 		$( \
-			cd "${KERNEL_REP_DIR}/modules-${FREETZ_KERNEL_LAYOUT}-${FREETZ_AVM_SOURCE_ID}" && \
+			cd "${KERNEL_REP_DIR}/modules-${KERNEL_ID}" && \
 			find . -type d -name .svn -prune -false , -type f \( -name modules.dep -o -name "*.ko" \) \
 		); do
 			bn="$(basename "$i")"
 			ko_install="$(eval "echo \"\$FREETZ_MODULE_$(echo "${bn%\.ko}" | tr '\-+' '_x')\"")"
 			[ "$FREETZ_MODULES_ALL" = "y" -o "$ko_install" == "y" ] || continue
 			sizeinfo "$bn"
-			ko_file_src="${KERNEL_REP_DIR}/modules-${FREETZ_KERNEL_LAYOUT}-${FREETZ_AVM_SOURCE_ID}/${i}"
+			ko_file_src="${KERNEL_REP_DIR}/modules-${KERNEL_ID}/${i}"
 			ko_path_dst="${MODULES_DIR}/kernel/$(dirname "$i")"
 			[ -d "$ko_path_dst" ] || mkdir -p "$ko_path_dst"
 			cp -a $ko_file_src "$ko_path_dst/"
@@ -1248,7 +1255,7 @@ if [ "$DO_MOD" -gt 0 ]; then
 		echo1 "generating modules.dep"
 		DEPMOD_TEMP="$(mktemp)"
 		NM=$NM ${TOOLS_DIR}/depmod.pl -e -b "$MODULES_DIR" \
-			-F ${KERNEL_REP_DIR}/System-${FREETZ_KERNEL_LAYOUT}-${FREETZ_AVM_SOURCE_ID}.map \
+			-F ${KERNEL_REP_DIR}/System-${KERNEL_ID}.map \
 			2>&1 | tee "$DEPMOD_TEMP"
 		if grep -q "^unresolved symbol " "$DEPMOD_TEMP"; then
 			warn "Unresolved symbols detected, not all AVM-features may work.\nNo current sources by AVM? Error in kernel's .config?"
@@ -1474,6 +1481,19 @@ if [ "$action_names" ]; then
 		warn "firmware does not seem to be modified by the script"
 		DO_AVOID_MOD_IN_STEP3=1
 
+		# Check if this is a completely automated run in the "no freetz"-mode
+		if [ "$NO_FREETZ_AUTOMATED_RUN" -gt 0 ]; then
+			# Removing (possibly already existing) MOD_DIR is necessary
+			# as Freetz doesn't have any checks if some of the patches
+			# are already applied and might (try to) apply them over
+			# and over again.
+			rm -rf "$MOD_DIR"
+		#else
+			# In the manual "step by step"-mode it's up to the user to invoke
+			# the script in a proper configuration so that the patches do not
+			# get applied multiple times.
+		fi
+
 		if [ ! -d "$MOD_DIR" ]; then
 			# Copy the unpacked directory
 			cp -r "$ORG_DIR" "$MOD_DIR"
@@ -1649,7 +1669,7 @@ if [ "$DO_PACK" -gt 0 ]; then
 				error 1 -b "kernel image is $KERNEL_DIFF bytes too big. See http://freetz.org/wiki/FAQ#Filesystemimagetoobig for details."
 		else
 			if [ "$FORCE_PACK" -eq 0 -a "$DO_ZIP" -eq 0 ]; then
-				error 1 -b "kernel image is $KERNEL_DIFF bytes too big. See http://freetz.org/wiki/FAQ#Filesystemimagetoobig for details."
+				error 1 -b "combined kernel+filesystem image is $KERNEL_DIFF bytes too big. See http://freetz.org/wiki/FAQ#Filesystemimagetoobig for details."
 			fi
 			if [ "$FORCE_PACK" -gt 0 -a "$DO_ZIP" -eq 0 ]; then
 				echo0   -b "Use for SDK mode only. See http://wehavemorefun.de/fritzbox/index.php/SDK-Firmware"

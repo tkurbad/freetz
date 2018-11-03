@@ -36,20 +36,37 @@ endif
 TARGET_CROSS:=$(call qstrip,$(FREETZ_TARGET_CROSS))
 KERNEL_CROSS:=$(call qstrip,$(FREETZ_KERNEL_CROSS))
 
-# arch=TUNE tune=TUNE
-TARGET_CFLAGS_ARCH_CPU_TUNE := -march=$(call qstrip,$(FREETZ_GCC_TUNE)) -mtune=$(call qstrip,$(FREETZ_GCC_TUNE))
-# arch=ARCH tune=TUNE
-#TARGET_CFLAGS_ARCH_CPU_TUNE := -march=$(call qstrip,$(FREETZ_GCC_ARCH)) -mtune=$(call qstrip,$(FREETZ_GCC_TUNE))
-
-TARGET_CFLAGS_FLOAT_ABI     := $(if $(call qstrip,$(FREETZ_GCC_FLOAT_ABI)),-m$(call qstrip,$(FREETZ_GCC_FLOAT_ABI))-float)
-
-ifneq ($(filter -march=% -mcpu=% -mtune=% -m%-float,$(call qstrip,$(FREETZ_TARGET_CFLAGS))),)
-$(error Please remove any CPU and architecture related flags (-march/-mcpu/-mtune/-m*-float) \
-	from target compiler flags (FREETZ_TARGET_CFLAGS variable in your .config). \
-	These flags are automatically set by freetz build environment now)
+TARGET_CFLAGS_HW_CAPABILITIES :=
+ifeq ($(strip $(FREETZ_TARGET_ARCH_ARM)),y)
+TARGET_CFLAGS_HW_CAPABILITIES += $(if $(call qstrip,$(FREETZ_GCC_CPU)),-mcpu=$(call qstrip,$(FREETZ_GCC_CPU)))
+else
+TARGET_CFLAGS_HW_CAPABILITIES += $(if $(call qstrip,$(FREETZ_GCC_CPU)),-march=$(call qstrip,$(FREETZ_GCC_CPU)))
+TARGET_CFLAGS_HW_CAPABILITIES += $(if $(call qstrip,$(FREETZ_GCC_CPU)),-mtune=$(call qstrip,$(FREETZ_GCC_CPU)))
 endif
+TARGET_CFLAGS_HW_CAPABILITIES += $(if $(call qstrip,$(FREETZ_GCC_FPU)),-mfpu=$(call qstrip,$(FREETZ_GCC_FPU)))
+ifeq ($(strip $(FREETZ_TARGET_ARCH_ARM)),y)
+# ARM is the only ARCH using -mfloat-abi=%
+TARGET_CFLAGS_HW_CAPABILITIES += $(if $(call qstrip,$(FREETZ_GCC_FLOAT_ABI)),-mfloat-abi=$(call qstrip,$(FREETZ_GCC_FLOAT_ABI)))
+else
+# all other ARCHs use -m%-float
+TARGET_CFLAGS_HW_CAPABILITIES += $(if $(call qstrip,$(FREETZ_GCC_FLOAT_ABI)),-m$(call qstrip,$(FREETZ_GCC_FLOAT_ABI))-float)
+endif
+TARGET_CFLAGS_HW_CAPABILITIES += $(if $(call qstrip,$(FREETZ_GCC_MODE)),-m$(call qstrip,$(FREETZ_GCC_MODE)))
+
+# additional Freetz controlled and $(FREETZ_TARGET_ARCH) dependent flags
+TARGET_CFLAGS_arm:=
+TARGET_CFLAGS_i686:=
+TARGET_CFLAGS_mips:=-Wa,--trap
+
+# LFS flags
 TARGET_CFLAGS_LFS:=-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
-TARGET_CFLAGS:=$(TARGET_CFLAGS_ARCH_CPU_TUNE) $(TARGET_CFLAGS_FLOAT_ABI) $(call qstrip,$(FREETZ_TARGET_CFLAGS)) $(TARGET_CFLAGS_LFS)
+
+ifneq ($(filter -march=% -mcpu=% -mtune=% -mfpu=% -mfloat-abi=% -m%-float -Wa$(_comma)--trap,$(call qstrip,$(FREETZ_TARGET_CFLAGS))),)
+$(error Please remove any ARCH/CPU/FPU/FLOAT-ABI/MODE related flags (-march/-mcpu/-mtune/-mfpu/-mfloat-abi/-m*-float/-Wa$(_comma)--trap) \
+	from target compiler flags (FREETZ_TARGET_CFLAGS variable in your .config). \
+	These flags are automatically set by Freetz build environment now)
+endif
+TARGET_CFLAGS:=$(strip $(TARGET_CFLAGS_HW_CAPABILITIES) $(call qstrip,$(FREETZ_TARGET_CFLAGS)) $(TARGET_CFLAGS_$(call qstrip,$(FREETZ_TARGET_ARCH))) $(TARGET_CFLAGS_LFS))
 
 FPIC:=-fPIC
 
@@ -64,7 +81,7 @@ $(PACKAGES_DIR):
 
 # If CONFIG_SITE is exported, it can cause errors in the host builds
 unexport CONFIG_SITE
-CONFIG_SITE:=$(FREETZ_BASE_DIR)/$(INCLUDE_DIR)/site/$(call qstrip,$(FREETZ_TARGET_UCLIBC_TRIPLET))
+CONFIG_SITE:=$(FREETZ_BASE_DIR)/$(INCLUDE_DIR)/config.site/$(call qstrip,$(FREETZ_TARGET_UCLIBC_TRIPLET))
 
 TARGET_AR:=$(TARGET_MAKE_PATH)/$(TARGET_CROSS)ar
 TARGET_AS:=$(TARGET_MAKE_PATH)/$(TARGET_CROSS)as
@@ -119,6 +136,9 @@ TARGET_CONFIGURE_PRE_CMDS += $(RM) config.{cache,status};
 TARGET_CONFIGURE_ENV:=
 TARGET_CONFIGURE_ENV += PATH=$(TARGET_PATH)
 TARGET_CONFIGURE_ENV += FREETZ_LIBRARY_DIR="$(FREETZ_LIBRARY_DIR)"
+TARGET_CONFIGURE_ENV += FREETZ_KERNEL_VERSION_MAJOR="$(call qstrip,$(FREETZ_KERNEL_VERSION_MAJOR))"
+TARGET_CONFIGURE_ENV += FREETZ_TARGET_ARCH="$(call qstrip,$(FREETZ_TARGET_ARCH))"
+TARGET_CONFIGURE_ENV += FREETZ_TARGET_ARCH_ENDIANNESS_DEPENDENT="$(call qstrip,$(FREETZ_TARGET_ARCH_ENDIANNESS_DEPENDENT))"
 
 # Set compiler/linker flags here, not in TARGET_CONFIGURE_OPTIONS,
 # because this way they do not disturb old configure scripts

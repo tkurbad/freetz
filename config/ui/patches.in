@@ -291,7 +291,7 @@ comment "No brandings available to remove"
 	depends on FREETZ_TYPE_W501V
 
 menu "Remove brandings"
-	depends on !FREETZ_TYPE_W501V
+	depends on !FREETZ_TYPE_W501V && !FREETZ_SYSTEM_TYPE_PUMA6
 
 comment "avm and tcom branding can't be removed"
 	depends on FREETZ_TYPE_ALIEN_HARDWARE
@@ -301,7 +301,6 @@ config FREETZ_REMOVE_BRANDING_1und1
 	depends on \
 		FREETZ_TYPE_LANG_DE && \
 		( \
-		FREETZ_TYPE_CUSTOM || \
 		FREETZ_TYPE_FON || \
 		FREETZ_TYPE_WLAN || \
 		FREETZ_TYPE_3020 || \
@@ -341,7 +340,6 @@ config FREETZ_REMOVE_BRANDING_avm
 	bool "AVM"
 	depends on \
 		( \
-		FREETZ_TYPE_CUSTOM || \
 		FREETZ_TYPE_LANG_A_CH || \
 		FREETZ_TYPE_LANG_DE \
 		) \
@@ -361,7 +359,6 @@ config FREETZ_REMOVE_BRANDING_avm
 config FREETZ_REMOVE_BRANDING_avme
 	bool "AVM international"
 	depends on \
-		FREETZ_TYPE_CUSTOM || \
 		FREETZ_TYPE_LANG_EN
 	default n
 	help
@@ -416,7 +413,6 @@ config FREETZ_REMOVE_BRANDING_aol
 		FREETZ_TYPE_LANG_DE && \
 		( \
 		FREETZ_TYPE_300IP || \
-		FREETZ_TYPE_CUSTOM || \
 		FREETZ_TYPE_FON || \
 		FREETZ_TYPE_WLAN || \
 		FREETZ_TYPE_7140 \
@@ -433,28 +429,12 @@ config FREETZ_REMOVE_BRANDING_aol
 
 		echo $(cat /proc/sys/urlader/firmware_version)
 
-config FREETZ_REMOVE_BRANDING_arcor
-	bool "Arcor"
-	depends on FREETZ_TYPE_CUSTOM
-	default n
-	help
-		Arcor branding
-
-		Each branding provides the web UI templates for a certain manufacturer or OEM.
-
-		NOTE: Make sure not to remove the branding corresponding to the one defined
-		in your box's boot loader environment. It can be determined by calling the
-		following command from the box's shell prompt:
-
-		echo $(cat /proc/sys/urlader/firmware_version)
-
 config FREETZ_REMOVE_BRANDING_freenet
 	bool "Freenet"
 	depends on \
 		FREETZ_TYPE_LANG_DE && \
 		( \
 		FREETZ_TYPE_300IP || \
-		FREETZ_TYPE_CUSTOM || \
 		FREETZ_TYPE_FON || \
 		FREETZ_TYPE_7150 || \
 		FREETZ_TYPE_7112 || \
@@ -472,27 +452,6 @@ config FREETZ_REMOVE_BRANDING_freenet
 		following command from the box's shell prompt:
 
 		echo $(cat /proc/sys/urlader/firmware_version)
-
-#config FREETZ_REMOVE_BRANDING_tcom
-#	bool "T-Com"
-#	depends on \
-#		FREETZ_TYPE_LANG_DE && \
-#		( \
-#		FREETZ_TYPE_300IP || \
-#		FREETZ_TYPE_W501V || \
-#		FREETZ_TYPE_ALIEN_HARDWARE \
-#		)
-#	default n
-#	help
-#		T-Com branding
-#
-#		Each branding provides the web UI templates for a certain manufacturer or OEM.
-#
-#		NOTE: Make sure not to remove the branding corresponding to the one defined
-#		in your box's boot loader environment. It can be determined by calling the
-#		following command from the box's shell prompt:
-#
-#		echo $(cat /proc/sys/urlader/firmware_version)
 
 config FREETZ_REMOVE_BRANDING_versatel
 	bool "Versatel"
@@ -655,7 +614,7 @@ config FREETZ_REMOVE_EXT2
 config FREETZ_REMOVE_ISOFS
 	bool "Remove isofs.ko"
 	default n
-	depends on FREETZ_AVM_HAS_ISOFS
+	depends on FREETZ_AVM_HAS_ISOFS_MODULE
 	help
 		Remove isofs.ko (about 35 kB uncompressed).
 
@@ -680,7 +639,7 @@ config FREETZ_REMOVE_JFFS2
 config FREETZ_REMOVE_RAMZSWAP
 	bool "Remove ramzswap.ko"
 	default n
-	depends on FREETZ_AVM_HAS_RAMZSWAP
+	depends on FREETZ_AVM_HAS_RAMZSWAP_MODULE
 	help
 		Remove ramzswap.ko (about 35 kB uncompressed).
 
@@ -803,14 +762,6 @@ config FREETZ_REMOVE_SAMBA
 		Remove Samba daemons (smbd, and nmbd if available)
 		This patch removes only the daemons. The regular options in AVM's webinterface
 		are still present.
-
-config FREETZ_REMOVE_STRACE
-	bool "Remove strace"
-	depends on FREETZ_AVM_HAS_STRACE
-	default n
-	help
-		Remove /usr/bin/strace binary.
-		This saves about 72 KB compressed space in kernel.image.
 
 config FREETZ_REMOVE_SUPPORT
 	bool "Remove support-files"
@@ -1141,13 +1092,6 @@ config FREETZ_PATCH_GSMVOICE
 		Highly experimental! Your UMTS stick has to support it.
 		Webif: Internet > Mobilfunk > Telefonie ueber Mobilfunk
 
-#config FREETZ_PATCH_INTERNATIONAL
-#	bool "Patch international"
-#	depends on FREETZ_AVM_HAS_PHONE && FREETZ_TYPE_LANG_DE
-#	default y
-#	help
-#		Reveals some options from the international firmware in the web menu.
-
 config FREETZ_PATCH_ALARMCLOCK
 	bool "Patch third alarm-clock"
 	depends on !FREETZ_REMOVE_TELEPHONY && \
@@ -1362,7 +1306,8 @@ config FREETZ_KEEP_AVM_UCLIBC
 		(FREETZ_AVM_UCLIBC_0_9_28 && FREETZ_TARGET_UCLIBC_0_9_28) || \
 		(FREETZ_AVM_UCLIBC_0_9_29 && FREETZ_TARGET_UCLIBC_0_9_29) || \
 		(FREETZ_AVM_UCLIBC_0_9_32 && FREETZ_TARGET_UCLIBC_0_9_32) || \
-		(FREETZ_AVM_UCLIBC_0_9_33 && FREETZ_TARGET_UCLIBC_0_9_33) \
+		(FREETZ_AVM_UCLIBC_0_9_33 && FREETZ_TARGET_UCLIBC_0_9_33) || \
+		(FREETZ_AVM_UCLIBC_1_0_14 && FREETZ_TARGET_UCLIBC_1_0_14)    \
 		) && \
 		FREETZ_REAL_DEVELOPER_ONLY
 	default n
@@ -1511,6 +1456,15 @@ config FREETZ_PATCH_MODFS_BOOT_MANAGER
 	help
 		Extends the "reboot" page of FRITZ!OS to select system version and branding.
 
+config FREETZ_PATCH_MODFS_ANNEX_SELECTION
+	bool "Unhide Annex selection"
+	depends on FREETZ_AVM_HAS_MULTI_ANNEX
+	depends on !FREETZ_REMOVE_MULTI_ANNEX_FIRMWARE_PRIME && !FREETZ_REMOVE_MULTI_ANNEX_FIRMWARE_DIFFS
+	depends on FREETZ_TYPE_LANG_DE
+	default n
+	help
+		Unhides Annex selection in Fritz!OS web interface.
+
 comment "Misc patches ---------------------------"
 
 config FREETZ_PATCH_W920V_LED_MODULE
@@ -1560,6 +1514,18 @@ config FREETZ_ASYNCHRONOUS_DEBUG_CFG
 		Enables asynchronous processing of /var/flash/debug.cfg.
 
 		Requires AVM's /sbin/delay binary in order to work.
+
+config FREETZ_RUN_TELEFON_IN_INHOUSE_MODE
+	bool "Run telefon daemon in in-house mode"
+	depends on FREETZ_AVM_HAS_PHONE
+	depends on FREETZ_AVM_VERSION_06_5X_MIN
+	default n
+	help
+		Running telefon daemon in "in-house" mode restores
+		- processing of /var/flash/calllog on incoming calls
+		- support for the telnet-on/-off phone codes (#96*7*/#96*8*)
+		- processing of /var/flash/fx_conf attributes responsible
+		  for automatic start of the telnet daemon
 
 comment "AVM daemons ----------------------------"
 

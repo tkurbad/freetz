@@ -8,16 +8,6 @@ choice
 		select FREETZ_AVM_SOURCE_04_49
 		bool "300IP as Fon"
 
-	config FREETZ_TYPE_FON
-		select FREETZ_AVM_SOURCE_04_33 if FREETZ_TYPE_LANG_DE
-		select FREETZ_AVM_SOURCE_04_49 if ! FREETZ_TYPE_LANG_DE
-		bool "Fon"
-
-	config FREETZ_TYPE_WLAN
-		select FREETZ_AVM_SOURCE_04_33 if FREETZ_TYPE_LANG_DE
-		select FREETZ_AVM_SOURCE_04_49 if ! FREETZ_TYPE_LANG_DE
-		bool "Fon WLAN"
-
 	config FREETZ_TYPE_W501V
 		select FREETZ_AVM_SOURCE_r7203
 		bool "Speedport W501V"
@@ -81,7 +71,16 @@ choice
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_QCA956x
 		bool "4020"
 
+	config FREETZ_TYPE_4040
+		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_IPQ40xx
+		bool "4040 - EXPERIMENTAL"
+
 	comment "Fon"
+
+	config FREETZ_TYPE_FON
+		select FREETZ_AVM_SOURCE_04_33 if FREETZ_TYPE_LANG_DE
+		select FREETZ_AVM_SOURCE_04_49 if ! FREETZ_TYPE_LANG_DE
+		bool "Fon"
 
 	config FREETZ_TYPE_5010
 		select FREETZ_AVM_SOURCE_04_40
@@ -99,6 +98,15 @@ choice
 		select FREETZ_AVM_SOURCE_04_67
 		bool "5140"
 
+	comment "Cable"
+
+	config FREETZ_TYPE_6490
+		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_PUMA6
+		bool "6490 (atom core)- EXPERIMENTAL"
+
+	config FREETZ_TYPE_6590
+		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_PUMA6
+		bool "6590 (atom core)- EXPERIMENTAL"
 
 	comment "LTE"
 
@@ -124,6 +132,11 @@ choice
 
 
 	comment "Fon WLAN"
+
+	config FREETZ_TYPE_WLAN
+		select FREETZ_AVM_SOURCE_04_33 if FREETZ_TYPE_LANG_DE
+		select FREETZ_AVM_SOURCE_04_49 if ! FREETZ_TYPE_LANG_DE
+		bool "Fon WLAN"
 
 	config FREETZ_TYPE_7050
 		select FREETZ_AVM_SOURCE_04_33
@@ -244,9 +257,17 @@ choice
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_VR9
 		bool "7490"
 
+	config FREETZ_TYPE_7530
+		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_IPQ40xx
+		bool "7530 - EXPERIMENTAL (status: unknown)"
+
 	config FREETZ_TYPE_7560
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_GRX5
 		bool "7560"
+
+	config FREETZ_TYPE_7570
+		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_UR8
+		bool "7570"
 
 	config FREETZ_TYPE_7580
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_GRX5
@@ -255,21 +276,6 @@ choice
 	config FREETZ_TYPE_7590
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_GRX5
 		bool "7590"
-
-	comment "VDSL"
-
-	config FREETZ_TYPE_7570
-		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_UR8
-		bool "7570"
-
-
-	comment "Custom"
-		depends on FREETZ_SHOW_EXPERT
-
-	config FREETZ_TYPE_CUSTOM
-		bool "Custom"
-		depends on FREETZ_SHOW_EXPERT
-		select FREETZ_DL_OVERRIDE
 
 endchoice # "Hardware type" #
 
@@ -357,12 +363,12 @@ choice
 			Enable this to use an AVM Labor firmware from the Beta branch as base for modding.
 			For more details see <http://www.avm.de/Labor/>.
 
-	config FREETZ_TYPE_FIRMWARE_LABOR_MESH
-		bool "FRITZ! Labor WLAN Mesh - HIGHLY EXPERIMENTAL"
-		select FREETZ_AVM_VERSION_06_9X
-		depends on FREETZ_AVM_HAS_FIRMWARE_LABOR_MESH && FREETZ_SHOW_ADVANCED
+	config FREETZ_TYPE_FIRMWARE_LABOR_MAINTENANCE
+		bool "FRITZ! Labor Maintenance - EXPERIMENTAL"
+		select FREETZ_AVM_VERSION_06_8X
+		depends on FREETZ_AVM_HAS_FIRMWARE_LABOR_MAINTENANCE && FREETZ_SHOW_ADVANCED
 		help
-			Enable this to use an AVM Labor firmware from the WLAN Mesh branch as base for modding.
+			Enable this to use an AVM Labor firmware from the Maintenance branch as base for modding.
 			For more details see <http://www.avm.de/Labor/>.
 
 endchoice # "Firmware version" #
@@ -372,9 +378,12 @@ if FREETZ_TYPE_FIRMWARE_06_5X || FREETZ_TYPE_FIRMWARE_06_8X || FREETZ_TYPE_FIRMW
 	comment "UNDER DEVELOPMENT means:"
 endif
 if FREETZ_TYPE_FIRMWARE_LABOR || FREETZ_TYPE_FIRMWARE_07_0X
-	comment "HIGHLY EXPERIMENTAL means:"
+	comment "(HIGHLY) EXPERIMENTAL means:"
 	comment " - the box may fail to boot and you need to recover it"
 	comment " - there is a higher probability to face stability issues"
+endif
+if FREETZ_SYSTEM_TYPE_PUMA6
+	comment " - the box may fail to boot and you need to recover it manually via the bootlader"
 endif
 	comment " - some remove/AVM-web-interface patches are not working"
 	comment "   even if selectable in menuconfig"
@@ -406,7 +415,7 @@ config FREETZ_TYPE_FIRMWARE_FINAL
 config FREETZ_TYPE_FIRMWARE_LABOR
 	bool
 	default y
-	depends on FREETZ_TYPE_FIRMWARE_LABOR_BETA || FREETZ_TYPE_FIRMWARE_LABOR_MESH
+	depends on FREETZ_TYPE_FIRMWARE_LABOR_BETA || FREETZ_TYPE_FIRMWARE_LABOR_MAINTENANCE
 
 config FREETZ_TYPE_LANGUAGE
 	string
@@ -539,14 +548,6 @@ choice
 		bool "7270 v1"
 		depends on FREETZ_TYPE_7270_V2
 #		select FREETZ_REPLACE_KERNEL        # not necessary (#1665)
-#		select FREETZ_REMOVE_AVM_VPN
-#		select FREETZ_REMOVE_CAPIOVERTCP
-#		select FREETZ_REMOVE_NTFS
-#		select FREETZ_REMOVE_SAMBA
-#		select FREETZ_REMOVE_UMTSD
-#		select FREETZ_REMOVE_VOIPD
-#		select FREETZ_REMOVE_TELEPHONY
-#		select FREETZ_REMOVE_WEBDAV
 		help
 			Enable this to compile a mod image for FritzBox FON WLAN 7270 v1 based
 			on a 7270 v2 image.

@@ -2,7 +2,7 @@ $(call PKG_INIT_BIN, 1aaf88acd0)
 $(PKG)_SOURCE:=$(pkg)-$($(PKG)_VERSION).tar.xz
 $(PKG)_SITE:=git@https://github.com/iocellnetworks/ndas4linux.git
 
-$(PKG)_KERNEL_VERSION:=$(call GET_MAJOR_VERSION,$(KERNEL_VERSION),3)
+$(PKG)_KERNEL_VERSION:=$(KERNEL_VERSION_MAJOR)
 
 $(PKG)_PRELIMINARY_BUILD_DIR:=$($(PKG)_DIR)/2.6.32
 $(PKG)_BUILD_DIR:=$($(PKG)_PRELIMINARY_BUILD_DIR)/build_freetz/ndas-$($(PKG)_KERNEL_VERSION)
@@ -26,7 +26,7 @@ $(PKG)_OPTIONS := \
 	NDAS_CROSS_COMPILE=$(TARGET_CROSS) \
 	NDAS_CROSS_COMPILE_UM=$(TARGET_CROSS) \
 	NDAS_EXTRA_CFLAGS="-mlong-calls -Wno-unused-but-set-variable -Wno-unused-function" \
-	NDAS_EXTRA_ARCH_CFLAGS="$(TARGET_CFLAGS_ARCH_CPU_TUNE) $(TARGET_CFLAGS_FLOAT_ABI) -Wa,--trap" \
+	NDAS_EXTRA_ARCH_CFLAGS="$(strip $(TARGET_CFLAGS_HW_CAPABILITIES)) -Wa,--trap" \
 	XPLAT_OPTIMIZATION="-Os" \
 	I_agree_the_XIMETA_EULA=true
 
@@ -65,7 +65,7 @@ $($(PKG)_BINARY_BUILD_DIR): $($(PKG)_DIR)/.configured | $($(PKG)_DIR)/.exported
 $($(PKG)_MODULES_BUILD_DIR): $($(PKG)_DIR)/.configured | $($(PKG)_DIR)/.exported
 	$(SUBMAKE1) -C $(NDAS_BUILD_DIR) \
 		$(NDAS_OPTIONS) \
-		ARCH="$(TARGET_ARCH)" \
+		ARCH="$(KERNEL_ARCH)" \
 		CC="$(KERNEL_CROSS)gcc" \
 		LD="$(KERNEL_CROSS)ld" \
 		AR="$(KERNEL_CROSS)ar" \

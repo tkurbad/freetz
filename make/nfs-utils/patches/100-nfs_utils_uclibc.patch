@@ -1,0 +1,35 @@
+--- utils/mountd/cache.c
++++ utils/mountd/cache.c
+@@ -149,6 +149,7 @@
+ 	pw = getpwuid(uid);
+ 	if (!pw)
+ 		rv = -1;
++#ifndef __UCLIBC__
+ 	else {
+ 		rv = getgrouplist(pw->pw_name, pw->pw_gid, groups, &ngroups);
+ 		if (rv == -1 && ngroups >= 100) {
+@@ -160,6 +161,7 @@
+ 						  groups, &ngroups);
+ 		}
+ 	}
++#endif /* __UCLIBC__ */
+ 	qword_printuint(f, uid);
+ 	qword_printuint(f, time(0)+30*60);
+ 	if (rv >= 0) {
+--- support/nfs/svc_socket.c
++++ support/nfs/svc_socket.c
+@@ -66,9 +66,13 @@
+ 
+   memset (&addr, 0, sizeof (addr));
+   addr.sin_family = AF_INET;
+-
++#ifndef __UCLIBC__ /* neither getrpcbynumber() nor getrpcbynumber_r() is SuSv3 */
+   ret = getrpcbynumber_r (number, &rpcbuf, rpcdata, sizeof rpcdata,
+ 			  &rpcp);
++#else
++  rpcp = getrpcbynumber (number);
++  ret = 0;
++#endif
+   if (ret == 0 && rpcp != NULL)
+     {
+       /* First try name.  */

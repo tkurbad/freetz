@@ -11,6 +11,7 @@ Latest changes:
   * kernel-/target-toolchain:
     + update gcc-4.7.x version to 4.7.4
     + add support for gcc-4.8.x/4.9.x/5.x
+    + add support for x86 target
   * support for a 3rd (auxiliary) firmware
   * fakeroot: bump version to 1.22
   * lzma SDK: bump lzma SDK version to 4.65
@@ -68,6 +69,7 @@ Latest changes:
     * libusb-compat 0.1.5
     * lzma1 4.65
     * mbed TLS 2.7.6
+    * Mosquitto 1.4.15
     * nzbget 14.1
     * PJProject 2.2.1
     * Fritz!Box private key password framework v0.7-git (by PeterPawn)
@@ -80,7 +82,7 @@ Latest changes:
     * spandsp 0.0.6pre21
     * squashfs-tools 3.4
     * squashfs-tools 4.3 (modified to support AVM-BE format)
-    * WireGuard 0.0.20180809
+    * WireGuard 0.0.20181018
     * xz 5.2.4
 
 - Updated tools and hooks:
@@ -111,7 +113,7 @@ Latest changes:
     * freetype 2.5.5
     * fuse 2.9.7
     * gdb 7.9.1
-    * git 2.19.0
+    * git 2.19.1
     * gmp 6.1.2
     * gnu-make 4.2.1
     * gnutls 3.5.19
@@ -192,7 +194,7 @@ Latest changes:
     * strace 4.9 (kernel-2.6.13) / 4.23 (all other kernel versions)
     * stunnel 5.49
     * subversion 1.8.19/1.9.9
-    * tinc 1.0.33/1.1pre15
+    * tinc 1.0.35/1.1pre17
     * tinyproxy 1.8.4
     * tmux 2.5
     * tor 0.3.2.11

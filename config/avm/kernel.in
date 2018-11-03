@@ -100,15 +100,35 @@ config FREETZ_KERNEL_VERSION_3_10
 		FREETZ_KERNEL_VERSION_3_10_104 || \
 		FREETZ_KERNEL_VERSION_3_10_107
 
+config FREETZ_KERNEL_VERSION_4_4_60
+	bool
+	default y
+	depends on \
+		FREETZ_SYSTEM_TYPE_IPQ40xx && FREETZ_AVM_VERSION_07_0X_MIN
+
+config FREETZ_KERNEL_VERSION_4_4
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_4_4_60
+
+# full kernel version
 config FREETZ_KERNEL_VERSION
 	string
 	default "2.6.13.1"  if FREETZ_KERNEL_VERSION_2_6_13
 	default "2.6.19.2"  if FREETZ_KERNEL_VERSION_2_6_19
-	default "2.6.28"    if FREETZ_KERNEL_VERSION_2_6_28
-	default "2.6.32"    if FREETZ_KERNEL_VERSION_2_6_32
-	default "2.6.39"    if FREETZ_KERNEL_VERSION_2_6_39
-	default "3.10"      if FREETZ_KERNEL_VERSION_3_10
+	default "2.6.28.10" if FREETZ_KERNEL_VERSION_2_6_28
+	default "2.6.32.41" if FREETZ_KERNEL_VERSION_2_6_32_41
+	default "2.6.32.60" if FREETZ_KERNEL_VERSION_2_6_32_60
+	default "2.6.32.61" if FREETZ_KERNEL_VERSION_2_6_32_61
+	default "2.6.39.3"  if FREETZ_KERNEL_VERSION_2_6_39_3
+	default "3.10.12"   if FREETZ_KERNEL_VERSION_3_10_12
+	default "3.10.73"   if FREETZ_KERNEL_VERSION_3_10_73
+	default "3.10.104"  if FREETZ_KERNEL_VERSION_3_10_104
+	default "3.10.107"  if FREETZ_KERNEL_VERSION_3_10_107
+	default "4.4.60"    if FREETZ_KERNEL_VERSION_4_4_60
 
+# major kernel version
 config FREETZ_KERNEL_VERSION_MAJOR
 	string
 	default "2.6.13"    if FREETZ_KERNEL_VERSION_2_6_13
@@ -117,123 +137,111 @@ config FREETZ_KERNEL_VERSION_MAJOR
 	default "2.6.32"    if FREETZ_KERNEL_VERSION_2_6_32
 	default "2.6.39"    if FREETZ_KERNEL_VERSION_2_6_39
 	default "3.10"      if FREETZ_KERNEL_VERSION_3_10
+	default "4.4"       if FREETZ_KERNEL_VERSION_4_4
 
-config FREETZ_KERNEL_VERSION_2_6_13_MIN
-	bool
-	default y if \
-		FREETZ_KERNEL_VERSION_2_6_13 || \
-		FREETZ_KERNEL_VERSION_2_6_19_MIN
-	default n
-
-config FREETZ_KERNEL_VERSION_2_6_19_MIN
-	bool
-	default y if \
-		FREETZ_KERNEL_VERSION_2_6_19 || \
-		FREETZ_KERNEL_VERSION_2_6_28_MIN
-	default n
-
-config FREETZ_KERNEL_VERSION_2_6_28_MIN
-	bool
-	default y if \
-		FREETZ_KERNEL_VERSION_2_6_28 || \
-		FREETZ_KERNEL_VERSION_2_6_32_MIN
-	default n
-
-config FREETZ_KERNEL_VERSION_2_6_32_MIN
-	bool
-	default y if \
-		FREETZ_KERNEL_VERSION_2_6_32 || \
-		FREETZ_KERNEL_VERSION_2_6_39_MIN
-	default n
-
-config FREETZ_KERNEL_VERSION_2_6_39_MIN
-	bool
-	default y if \
-		FREETZ_KERNEL_VERSION_2_6_39 || \
-		FREETZ_KERNEL_VERSION_3_10_MIN
-	default n
-
-config FREETZ_KERNEL_VERSION_3_10_MIN
-	bool
-	default y if \
-		FREETZ_KERNEL_VERSION_3_10
-	default n
-
-config FREETZ_KERNEL_VERSION_2_6_13_MAX
-	bool
-	default y if \
-		FREETZ_KERNEL_VERSION_2_6_13
-	default n
-
-config FREETZ_KERNEL_VERSION_2_6_19_MAX
-	bool
-	default y if \
-		FREETZ_KERNEL_VERSION_2_6_13_MAX || \
-		FREETZ_KERNEL_VERSION_2_6_19
-	default n
-
-config FREETZ_KERNEL_VERSION_2_6_28_MAX
-	bool
-	default y if \
-		FREETZ_KERNEL_VERSION_2_6_19_MAX || \
-		FREETZ_KERNEL_VERSION_2_6_28
-	default n
-
-config FREETZ_KERNEL_VERSION_2_6_32_MAX
-	bool
-	default y if \
-		FREETZ_KERNEL_VERSION_2_6_28_MAX || \
-		FREETZ_KERNEL_VERSION_2_6_32
-	default n
-
-config FREETZ_KERNEL_VERSION_2_6_39_MAX
-	bool
-	default y if \
-		FREETZ_KERNEL_VERSION_2_6_32_MAX || \
-		FREETZ_KERNEL_VERSION_2_6_39
-	default n
-
-config FREETZ_KERNEL_VERSION_3_10_MAX
-	bool
-	default y if \
-		FREETZ_KERNEL_VERSION_2_6_39_MAX || \
-		FREETZ_KERNEL_VERSION_3_10
-	default n
-
-config FREETZ_KERNEL_LAYOUT
-	string
-	default "ar7"           if FREETZ_SYSTEM_TYPE_AR7_SANGAM
-	default "ohio"          if FREETZ_SYSTEM_TYPE_AR7_OHIO
-	default "ar9"           if FREETZ_SYSTEM_TYPE_AR9
-	default "ar934x"        if FREETZ_SYSTEM_TYPE_AR934x
-	default "ar10"          if FREETZ_SYSTEM_TYPE_AR10
-	default "grx5"          if FREETZ_SYSTEM_TYPE_GRX5
-	default "iks"           if FREETZ_SYSTEM_TYPE_IKS
-	default "puma6"         if FREETZ_SYSTEM_TYPE_PUMA6
-	default "qca955x"       if FREETZ_SYSTEM_TYPE_QCA955x
-	default "qca956x"       if FREETZ_SYSTEM_TYPE_QCA956x
-	default "ur8"           if FREETZ_SYSTEM_TYPE_UR8
-	default "vr9"           if FREETZ_SYSTEM_TYPE_VR9
-
-config FREETZ_MODULES_KVER
+# the name of the directory kernel modules are installed in
+# this directory contains the kernel version in its name
+config FREETZ_KERNEL_VERSION_MODULES_SUBDIR
 	string
 	default "2.6.13.1-ar7"  if FREETZ_KERNEL_VERSION_2_6_13 && FREETZ_SYSTEM_TYPE_AR7_SANGAM
 	default "2.6.13.1-ohio" if FREETZ_KERNEL_VERSION_2_6_13 && FREETZ_SYSTEM_TYPE_AR7_OHIO
-	default "2.6.19.2"      if FREETZ_KERNEL_VERSION_2_6_19
-	default "2.6.28.10"     if FREETZ_KERNEL_VERSION_2_6_28
-	default "2.6.32.41"     if FREETZ_KERNEL_VERSION_2_6_32_41
-	default "2.6.32.60"     if FREETZ_KERNEL_VERSION_2_6_32_60
-	default "2.6.32.61"     if FREETZ_KERNEL_VERSION_2_6_32_61
-	default "2.6.39.3"      if FREETZ_KERNEL_VERSION_2_6_39_3
-	default "3.10.12"       if FREETZ_KERNEL_VERSION_3_10_12
-	default "3.10.73"       if FREETZ_KERNEL_VERSION_3_10_73
-	default "3.10.104"      if FREETZ_KERNEL_VERSION_3_10_104
-	default "3.10.107"      if FREETZ_KERNEL_VERSION_3_10_107
+	default FREETZ_KERNEL_VERSION
 
-config FREETZ_KERNEL_PATCHES
-	string
-	default "2.6.13.1"      if FREETZ_KERNEL_VERSION_2_6_13
-	default FREETZ_MODULES_KVER
+config FREETZ_KERNEL_VERSION_2_6_13_MIN
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_2_6_13 || \
+		FREETZ_KERNEL_VERSION_2_6_19_MIN
+
+config FREETZ_KERNEL_VERSION_2_6_19_MIN
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_2_6_19 || \
+		FREETZ_KERNEL_VERSION_2_6_28_MIN
+
+config FREETZ_KERNEL_VERSION_2_6_28_MIN
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_2_6_28 || \
+		FREETZ_KERNEL_VERSION_2_6_32_MIN
+
+config FREETZ_KERNEL_VERSION_2_6_32_MIN
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_2_6_32 || \
+		FREETZ_KERNEL_VERSION_2_6_39_MIN
+
+config FREETZ_KERNEL_VERSION_2_6_39_MIN
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_2_6_39 || \
+		FREETZ_KERNEL_VERSION_3_10_MIN
+
+config FREETZ_KERNEL_VERSION_3_10_MIN
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_3_10 || \
+		FREETZ_KERNEL_VERSION_4_4_MIN
+
+config FREETZ_KERNEL_VERSION_4_4_MIN
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_4_4
+
+config FREETZ_KERNEL_VERSION_2_6_13_MAX
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_2_6_13
+
+config FREETZ_KERNEL_VERSION_2_6_19_MAX
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_2_6_13_MAX || \
+		FREETZ_KERNEL_VERSION_2_6_19
+
+config FREETZ_KERNEL_VERSION_2_6_28_MAX
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_2_6_19_MAX || \
+		FREETZ_KERNEL_VERSION_2_6_28
+
+config FREETZ_KERNEL_VERSION_2_6_32_MAX
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_2_6_28_MAX || \
+		FREETZ_KERNEL_VERSION_2_6_32
+
+config FREETZ_KERNEL_VERSION_2_6_39_MAX
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_2_6_32_MAX || \
+		FREETZ_KERNEL_VERSION_2_6_39
+
+config FREETZ_KERNEL_VERSION_3_10_MAX
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_2_6_39_MAX || \
+		FREETZ_KERNEL_VERSION_3_10
+
+config FREETZ_KERNEL_VERSION_4_4_MAX
+	bool
+	default y
+	depends on \
+		FREETZ_KERNEL_VERSION_3_10_MAX || \
+		FREETZ_KERNEL_VERSION_4_4
 
 # AVM kernel config area size in KB
 config FREETZ_AVM_KERNEL_CONFIG_AREA_SIZE
