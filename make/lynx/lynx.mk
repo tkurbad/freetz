@@ -21,6 +21,7 @@ $(PKG)_CONFIGURE_OPTIONS += \
 	--disable-alt-bindings \
 	--disable-bibp-urls \
 	--disable-config-info \
+	--disable-color-style \
 	--disable-dired \
 	--disable-finger \
 	--disable-gopher \
