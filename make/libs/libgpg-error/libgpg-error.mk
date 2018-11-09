@@ -1,12 +1,14 @@
-$(call PKG_INIT_LIB, 1.24)
-$(PKG)_LIB_VERSION:=0.19.1
+$(call PKG_INIT_LIB, 1.32)
+$(PKG)_LIB_VERSION:=0.24.3
 $(PKG)_SOURCE:=$(pkg)-$($(PKG)_VERSION).tar.bz2
-$(PKG)_SOURCE_MD5:=feb42198c0aaf3b28eabe8f41a34b983
+$(PKG)_SOURCE_MD5:=ef3d928a5a453fa701ecc3bb22be1c64
 $(PKG)_SITE:=ftp://ftp.gnupg.org/gcrypt/libgpg-error
 
 $(PKG)_BINARY:=$($(PKG)_DIR)/src/.libs/$(pkg).so.$($(PKG)_LIB_VERSION)
 $(PKG)_STAGING_BINARY:=$(TARGET_TOOLCHAIN_STAGING_DIR)/usr/lib/$(pkg).so.$($(PKG)_LIB_VERSION)
 $(PKG)_TARGET_BINARY:=$($(PKG)_TARGET_DIR)/$(pkg).so.$($(PKG)_LIB_VERSION)
+
+$(PKG)_PATCH_POST_CMDS += $(if $(TARGET_TRIPLET_GNU_ABI),(cd src/syscfg; ln -s lock-obj-pub.$(TARGET_GNU_TRIPLET).h lock-obj-pub.$(subst gnu$(TARGET_TRIPLET_GNU_ABI),gnu,$(TARGET_GNU_TRIPLET)).h);)
 
 $(PKG)_CONFIGURE_OPTIONS += --enable-shared
 $(PKG)_CONFIGURE_OPTIONS += --enable-static
