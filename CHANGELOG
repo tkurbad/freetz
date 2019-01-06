@@ -165,7 +165,7 @@ Latest changes:
     * obexftp 0.23
     * openconnect 7.04
     * openssh 7.9p1
-    * openssl 0.9.8zh/1.0.2p
+    * openssl 0.9.8zh/1.0.2q
     * openvpn 2.4.6
     * pcre 8.42
     * pcscd 1.8.12
@@ -199,7 +199,7 @@ Latest changes:
     * tmux 2.5
     * tor 0.3.2.11
     * transmission 2.94
-    * tree 1.7.0
+    * tree 1.8.0
     * uClibc++ 0.2.5-git
     * udpxy 1.0.23-9
     * usbutils 007
