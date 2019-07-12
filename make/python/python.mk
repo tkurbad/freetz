@@ -1,7 +1,7 @@
-$(call PKG_INIT_BIN, 2.7.15)
+$(call PKG_INIT_BIN, 2.7.16)
 $(PKG)_MAJOR_VERSION:=$(call GET_MAJOR_VERSION,$($(PKG)_VERSION))
 $(PKG)_SOURCE:=Python-$($(PKG)_VERSION).tar.xz
-$(PKG)_SOURCE_MD5:=a80ae3cc478460b922242f43a1b4094d
+$(PKG)_SOURCE_MD5:=30157d85a2c0479c09ea2cbe61f2aaf5
 $(PKG)_SITE:=http://www.python.org/ftp/python/$($(PKG)_VERSION)
 
 $(PKG)_LOCAL_INSTALL_DIR:=$($(PKG)_DIR)/_install
@@ -58,10 +58,6 @@ $(PKG)_CONFIGURE_ENV += ac_cv_buggy_getaddrinfo=no
 $(PKG)_CONFIGURE_ENV += ac_cv_file__dev_ptmx=no
 $(PKG)_CONFIGURE_ENV += ac_cv_file__dev_ptc=no
 $(PKG)_CONFIGURE_ENV += OPT="-fno-inline"
-
-# use local config.cache to avoid conflicts with other packages
-# TODO: check if this is still necessary
-$(PKG)_CONFIGURE_OPTIONS += --cache-file=config.cache
 
 $(PKG)_CONFIGURE_OPTIONS += --with-system-expat
 $(PKG)_CONFIGURE_OPTIONS += --with-system-ffi

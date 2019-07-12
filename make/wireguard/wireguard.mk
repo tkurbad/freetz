@@ -1,6 +1,6 @@
-$(call PKG_INIT_BIN, 0.0.20181018)
+$(call PKG_INIT_BIN, 0.0.20190601)
 $(PKG)_SOURCE:=WireGuard-$($(PKG)_VERSION).tar.xz
-$(PKG)_SOURCE_MD5:=f6c9956a447f8f97159144467083c7fb
+$(PKG)_SOURCE_MD5:=eeeabbbd5592987b5308d1cc495f756f
 $(PKG)_SITE:=https://git.zx2c4.com/WireGuard/snapshot
 
 $(PKG)_BINARIES            := wg
@@ -12,6 +12,8 @@ $(PKG)_MODULES_BUILD_DIR  := $($(PKG)_MODULES:%=$($(PKG)_DIR)/src/%)
 $(PKG)_MODULES_TARGET_DIR := $($(PKG)_MODULES:%=$(KERNEL_MODULES_DIR)/drivers/net/wireguard/%)
 
 $(PKG)_DEPENDS_ON += kernel libmnl
+
+$(PKG)_REBUILD_SUBOPTS += FREETZ_KERNEL_VERSION
 
 $(PKG_SOURCE_DOWNLOAD)
 $(PKG_UNPACKED)

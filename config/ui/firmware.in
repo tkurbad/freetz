@@ -72,7 +72,7 @@ choice
 
 	config FREETZ_TYPE_4040
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_IPQ40xx
-		bool "4040 - EXPERIMENTAL"
+		bool "4040"
 
 	comment "Fon"
 
@@ -97,6 +97,12 @@ choice
 		select FREETZ_AVM_SOURCE_04_67
 		bool "5140"
 
+	comment "Fiber"
+
+	config FREETZ_TYPE_5491
+		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_VR9
+		bool "5491"
+
 	comment "Cable"
 
 	config FREETZ_TYPE_6490
@@ -115,7 +121,7 @@ choice
 
 	config FREETZ_TYPE_6820
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_QCA955x
-		bool "6820 - EXPERIMENTAL (status: unknown)"
+		bool "6820"
 
 	config FREETZ_TYPE_6840
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_VR9
@@ -127,7 +133,7 @@ choice
 
 	config FREETZ_TYPE_6890
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_GRX5
-		bool "6890 - EXPERIMENTAL (status: unknown)"
+		bool "6890"
 
 
 	comment "Fon WLAN"
@@ -238,7 +244,7 @@ choice
 
 	config FREETZ_TYPE_7369
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_IKS
-		bool "7369 - EXPERIMENTAL (status: unknown)"
+		bool "7369"
 
 	config FREETZ_TYPE_7390
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_IKS
@@ -256,6 +262,10 @@ choice
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_VR9
 		bool "7490"
 
+	config FREETZ_TYPE_7520
+		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_IPQ40xx
+		bool "7520 - EXPERIMENTAL (status: unknown)"
+
 	config FREETZ_TYPE_7530
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_IPQ40xx
 		bool "7530 - EXPERIMENTAL (status: unknown)"
@@ -271,6 +281,10 @@ choice
 	config FREETZ_TYPE_7580
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_GRX5
 		bool "7580"
+
+	config FREETZ_TYPE_7583
+		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_GRX5
+		bool "7583"
 
 	config FREETZ_TYPE_7590
 		select FREETZ_AVM_SOURCE_FOR_SYSTEM_TYPE_GRX5
@@ -363,10 +377,15 @@ choice
 		bool "FRITZ!OS 07.0x - HIGHLY EXPERIMENTAL"
 		select FREETZ_AVM_VERSION_07_0X
 		depends on FREETZ_AVM_HAS_FIRMWARE_07_0X
+		
+	config FREETZ_TYPE_FIRMWARE_07_1X
+		bool "FRITZ!OS 07.1x - HIGHLY EXPERIMENTAL"
+		select FREETZ_AVM_VERSION_07_1X
+		depends on FREETZ_AVM_HAS_FIRMWARE_07_1X
 
 	config FREETZ_TYPE_FIRMWARE_LABOR_BETA
 		bool "FRITZ! Labor Beta - HIGHLY EXPERIMENTAL"
-		select FREETZ_AVM_VERSION_07_0X
+		select FREETZ_AVM_VERSION_07_1X
 		depends on FREETZ_AVM_HAS_FIRMWARE_LABOR_BETA && FREETZ_SHOW_ADVANCED
 		help
 			Enable this to use an AVM Labor firmware from the Beta branch as base for modding.
@@ -386,7 +405,7 @@ if FREETZ_AVM_VERSION_06_5X_MIN
 if FREETZ_TYPE_FIRMWARE_06_5X || FREETZ_TYPE_FIRMWARE_06_8X || FREETZ_TYPE_FIRMWARE_06_9X
 	comment "UNDER DEVELOPMENT means:"
 endif
-if FREETZ_TYPE_FIRMWARE_LABOR || FREETZ_TYPE_FIRMWARE_07_0X
+if FREETZ_TYPE_FIRMWARE_LABOR || FREETZ_TYPE_FIRMWARE_07_0X || FREETZ_TYPE_FIRMWARE_07_1X
 	comment "(HIGHLY) EXPERIMENTAL means:"
 	comment " - the box may fail to boot and you need to recover it"
 	comment " - there is a higher probability to face stability issues"

@@ -1,8 +1,8 @@
-$(call PKG_INIT_LIB, 2.1.8-stable)
+$(call PKG_INIT_LIB, 2.1.10-stable)
 $(PKG)_MAJOR_VERSION:=2.1
-$(PKG)_SHLIB_VERSION:=6.0.2
+$(PKG)_SHLIB_VERSION:=6.0.4
 $(PKG)_SOURCE:=$(pkg)-$($(PKG)_VERSION).tar.gz
-$(PKG)_SOURCE_MD5:=f3eeaed018542963b7d2416ef1135ecc
+$(PKG)_SOURCE_MD5:=999caf86f52943af2363bc8077f00167
 $(PKG)_SITE:=https://github.com/libevent/libevent/releases/download/release-$($(PKG)_VERSION)
 
 $(PKG)_LIBNAME=$(pkg)-$($(PKG)_MAJOR_VERSION).so.$($(PKG)_SHLIB_VERSION)
@@ -10,9 +10,8 @@ $(PKG)_BINARY:=$($(PKG)_DIR)/.libs/$($(PKG)_LIBNAME)
 $(PKG)_STAGING_BINARY:=$(TARGET_TOOLCHAIN_STAGING_DIR)/usr/lib/$($(PKG)_LIBNAME)
 $(PKG)_TARGET_BINARY:=$($(PKG)_TARGET_DIR)/$($(PKG)_LIBNAME)
 
-# zlib is needed only for tests
-$(PKG)_CONFIGURE_PRE_CMDS += $(call PKG_MAKE_AC_VARIABLES_PACKAGE_SPECIFIC,header_zlib_h)
-$(PKG)_CONFIGURE_ENV += $(pkg)_header_zlib_h=no
+# zlib is needed only for tests, pretend not to have it to avoid the run-time dependency
+$(PKG)_CONFIGURE_ENV += ac_cv_header_zlib_h=no
 
 $(PKG)_CONFIGURE_OPTIONS += --enable-shared
 $(PKG)_CONFIGURE_OPTIONS += --enable-static

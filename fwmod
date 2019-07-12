@@ -651,10 +651,16 @@ AVM_FW_LANGUAGE="$(sed -n 's/^language /_/p' ${FILESYSTEM_DIR}/etc/default.langu
 AVM_FW_LANGUAGE="${AVM_FW_LANGUAGE}$(for x in $(ls ${FILESYSTEM_DIR}/etc/htmltext_??.db 2>/dev/null| sed 's/.*_//g;s/\.db//g'); do [ "_$x" != "${AVM_FW_LANGUAGE}" ] && echo -en "-$x"; done; echo)" # other languages
 AVM_FW_MAJOR="$(sed -rn 's/^export CONFIG_VERSION_MAJOR="(.*)"/\1/p' ${FILESYSTEM_DIR}/etc/init.d/rc.conf | tail -n1)" # newer firmware
 [ -z "${AVM_FW_MAJOR}" ] && AVM_FW_MAJOR="$(sed -n 's/^HW=[0-9].*VERSION_MAJOR=//p' ${FILESYSTEM_DIR}/etc/init.d/rc.init)" # older firmware
-AVM_FW_VERSION="$(sed -n 's/^export FIRMWARE_VERSION=.*}[.]//p' ${FILESYSTEM_DIR}/etc/version)"
+if grep -q "^export FIRMWARE_" ${FILESYSTEM_DIR}/etc/version; then # pre-07.08 versions from AVM
+	AVM_FW_VERSION="$(sed -n 's/^export FIRMWARE_VERSION=.*}\.//p' ${FILESYSTEM_DIR}/etc/version)"
+	AVM_FW_REVISION="$(sed -n '/--project)$/{N;s/.*echo //p}' ${FILESYSTEM_DIR}/etc/version)"
+	AVM_FW_DATE="$(sed -rn 's/^export FIRMWARE_DATE="(.*)"/\1/p' ${FILESYSTEM_DIR}/etc/version)"
+else # starting with FRITZ!OS 07.08 another location was used for these values
+	AVM_FW_VERSION="$(sed -n 's/^export CONFIG_VERSION="\(.*\)"$/\1/p' ${FILESYSTEM_DIR}/etc/init.d/rc.conf)"
+	AVM_FW_REVISION="$(sed -n 's/^export CONFIG_BUILDNUMBER="\(.*\)"$/\1/p' ${FILESYSTEM_DIR}/etc/init.d/rc.conf)"
+	AVM_FW_DATE="$(date +"%d.%m.%Y %H:%M:%S" -d @$(stat -c %Y ${FILESYSTEM_DIR}/etc/version))"
+fi
 AVM_FW_LABOR="$(sed -rn 's/^export CONFIG_LABOR_ID_NAME="(.*)"/-\1/p' ${FILESYSTEM_DIR}/etc/init.d/rc.conf)"
-AVM_FW_REVISION="$(sed -n '/--project)$/{N;s/.*echo //p}' ${FILESYSTEM_DIR}/etc/version)"
-AVM_FW_DATE="$(sed -rn 's/^export FIRMWARE_DATE="(.*)"/\1/p' ${FILESYSTEM_DIR}/etc/version)"
 echo1 -l "detected${FIRMWARE_MAIN} firmware ${AVM_FW_PRODUCT/ /-}${AVM_FW_LANGUAGE} ${AVM_FW_MAJOR}.${AVM_FW_VERSION}${AVM_FW_LABOR} rev${AVM_FW_REVISION} (${AVM_FW_DATE})\n"
 
 if [ "$DO_MOD" -gt 0 ]; then
@@ -825,73 +831,18 @@ if [ "$DO_MOD" -gt 0 ]; then
 	# 7390: /opt is symlink to /var/InternerSpeicher/opt
 	[ ! -L "$FILESYSTEM_MOD_DIR"/opt ] && mkdir -p "$FILESYSTEM_MOD_DIR"/opt
 
-	# Set version and options
-	SUBVERSION_FILE="${BASE_DIR}/.version"
+	# Determine Freetz version
+	REVISION=$(${TOOLS_DIR}/freetz-version 2>/dev/null)
+	FREETZ_VERSION="freetz${REVISION:+-}${REVISION}"
 
-	if [ ! -r "$SUBVERSION_FILE" ]; then
-		error 1 "cannot determine version"
-	fi
-
-	if [ -d .svn ]; then
-		# be compatible: older versions of svnversion need WC_PATH
-		if REVISION="$(svnversion . 2>/dev/null | tr ":" "_")"; then
-			[ "${REVISION:0:6}" == "export" ] && REVISION=""
-		fi
-	elif [ -d .git ]; then
-		REVISION="$(git log 2>/dev/null | sed -rn 's!.*git-svn-id.*\@([^ ]*).*!\1!p' | head -n1)"
-	fi
-	[ -n "$REVISION" ] && REVISION="-$REVISION"
-
-	SUBVERSION="$(cat $SUBVERSION_FILE)${REVISION}"
-
-	for i in $(set | sed -rn 's:^FREETZ_REMOVE_(.*)=y$:\1:gp' | tr '[:upper:]' '[:lower:]' | sort); do
-		OPTIONS+=" -$i"
-	done
-
-	OPTIONS_ADD=" +busybox"
-	for i in $(set | sed -rn 's:^FREETZ_PATCH_(.*)=y$:\1:gp' | tr '[:upper:]' '[:lower:]'); do
-		OPTIONS_ADD+=" +$i"
-	done
+	echo1 "setting freetz-version '${FREETZ_VERSION}'"
+	echo "${FREETZ_VERSION}" > "${FILESYSTEM_MOD_DIR}/etc/.freetz-version"
 
 	PACKAGES_LIST_FILE="${BASE_DIR}/.packages"
 	rm -f "${PACKAGES_LIST_FILE}"
 	for pkg in $(static_packages) $(static_addons); do
-		OPTIONS_ADD+=" +$pkg"
 		echo "$pkg" >> "${PACKAGES_LIST_FILE}"
 	done
-
-	KERNEL_ID="${FREETZ_SYSTEM_TYPE}${FREETZ_SYSTEM_TYPE_CORE_SUFFIX}-${FREETZ_AVM_SOURCE_ID}"
-	if [ "$FIRMWARE_NOCOMPILE" != "1" -a "$FREETZ_REPLACE_KERNEL" == "y" -a "$FWMOD_PATCH_TEST" != "y" ]; then
-		KERNEL_SUBVERSION_FILE="${KERNEL_REP_DIR}/.version-${KERNEL_ID}"
-
-		if [ ! -r "$KERNEL_SUBVERSION_FILE" ]; then
-			error 1 "cannot determine kernel version"
-		fi
-
-		KERNEL_SUBVERSION="$(cat $KERNEL_SUBVERSION_FILE)"
-		OPTIONS_ADD+=" +kernel ($KERNEL_SUBVERSION)"
-	fi
-
-	for i in $(echo ${OPTIONS_ADD}|sed -e's: +:\n+:g'|sort); do
-		OPTIONS+=" $i"
-	done
-
-	echo1 "setting freetz-version '${SUBVERSION}'"
-	echo "$SUBVERSION" > "${FILESYSTEM_MOD_DIR}/etc/.freetz-version"
-
-	if [ "$FREETZ_MODIFY_AVM_VERSION" == "y" ]; then
-		echo1 "setting AVM firmware subversion '${SUBVERSION}'"
-		echo "$SUBVERSION" > "${FILESYSTEM_MOD_DIR}/etc/.subversion"
-		sed -i -e "s/\export\ FIRMWARE_SUBVERSION=.*\$/export\ FIRMWARE_SUBVERSION=\"${SUBVERSION}\"/g" "${FILESYSTEM_MOD_DIR}/etc/version"
-
-		if [ ! -e "${FILESYSTEM_MOD_DIR}/etc/init.d/rc.init" ]; then
-			AVM_SUBVERSION=`grep "SUBVERSION=" "${FILESYSTEM_MOD_DIR}/etc/init.d/rc.conf" | sed -e "s/[^-0-9]//g"`
-			sed -i -e "s/SUBVERSION=\"$AVM_SUBVERSION\"/SUBVERSION=\"-$SUBVERSION\"/" "${FILESYSTEM_MOD_DIR}/etc/init.d/rc.conf"
-		fi
-
-		sed -i -e "s/<subversion>/${SUBVERSION}/g" "${FILESYSTEM_MOD_DIR}/usr/bin/system_status"
-		sed -i -e "s/<options>/${OPTIONS}/g" "${FILESYSTEM_MOD_DIR}/usr/bin/system_status"
-	fi
 
 	# Execute general patch scripts
 	for i in "${PATCHES_SCRIPTS_DIR}/"*.sh; do
@@ -1206,6 +1157,7 @@ if [ "$DO_MOD" -gt 0 ]; then
 		sizeinfo add "${ADDON_DIR}/${pkg}"
 	done
 
+	KERNEL_ID="${FREETZ_SYSTEM_TYPE}${FREETZ_SYSTEM_TYPE_CORE_SUFFIX}-${FREETZ_AVM_SOURCE_ID}"
 	if [ "$NOCOMPILE" != "1" -a "$FREETZ_REPLACE_KERNEL" == "y" ]; then
 		echo0 "replacing kernel"
 
@@ -1213,7 +1165,7 @@ if [ "$DO_MOD" -gt 0 ]; then
 			error 1 "can't find kernel for ref ${KERNEL_ID}"
 		fi
 
-		echo1 "replacing kernel-${KERNEL_ID} (${KERNEL_SUBVERSION})"
+		echo1 "replacing kernel-${KERNEL_ID}"
 		cp "${KERNEL_REP_DIR}/kernel-${KERNEL_ID}.bin" "$RAW_KERNEL_MOD"
 	fi
 
@@ -1235,7 +1187,7 @@ if [ "$DO_MOD" -gt 0 ]; then
 		for i in \
 		$( \
 			cd "${KERNEL_REP_DIR}/modules-${KERNEL_ID}" && \
-			find . -type d -name .svn -prune -false , -type f \( -name modules.dep -o -name "*.ko" \) \
+			find . -type f \( -name modules.dep -o -name "*.ko" \) \
 		); do
 			bn="$(basename "$i")"
 			ko_install="$(eval "echo \"\$FREETZ_MODULE_$(echo "${bn%\.ko}" | tr '\-+' '_x')\"")"
@@ -1502,9 +1454,9 @@ if [ "$action_names" ]; then
 		invoke_fwmod_custom all_no_freetz
 	fi
 
-	# Remove left over Subversion directories
-	echo1 "checking for left over Subversion directories"
-	find "$MOD_DIR" \( -type d -name '.svn' \) -o -name '.gitignore' | xargs rm -rf
+	# Remove left over version-constrol-system files
+	echo1 "checking for left over version-control-system files"
+	find "$MOD_DIR" \( -type d -name '.svn' \) -o \( -type d -name '.git' \) -o -name '.gitignore' | xargs rm -rf
 
 	# Delete all files that we are going to re-create now
 	rm -f "$VARTAR_MOD"
@@ -1519,7 +1471,7 @@ if [ "$action_names" ]; then
 	if [ -n "$FREETZ_TYPE_PREFIX_LABOR_FIRMWARE" ]; then
 		modbaseimagename+="-rev${AVM_FW_REVISION}${FREETZ_TYPE_PREFIX_LABOR_FIRMWARE}"
 	fi
-	modbaseimagename+="${SUBVERSION:+-}${SUBVERSION}" # missing in DO_MOD=0 mode
+	modbaseimagename+="${FREETZ_VERSION:+-}${FREETZ_VERSION}" # missing in DO_MOD=0 mode
 	modbaseimagename+=".${FREETZ_TYPE_LANGUAGE}"
 	if [ "$FREETZ_CUSTOM_IMAGE_NAME" == "y" -a ! -z "$FREETZ_USER_DEFINED_COMMENT" ]; then
 		modcustomimagestring=$(echo $FREETZ_USER_DEFINED_COMMENT | sed -e "s/ /_/g" | tr -cd 'a-zA-Z0-9_+-.<->')
@@ -1550,7 +1502,7 @@ if [ "$action_names" ]; then
 		freetz_info_file="$MOD_DIR/filesystem/etc/freetz_info.cfg"
 		echo "export FREETZ_INFO_BOXTYPE='${FREETZ_TYPE_PREFIX_ALIEN_HARDWARE}${FREETZ_TYPE_PREFIX%_0?_??}${FREETZ_TYPE_PREFIX_LABOR_FIRMWARE}'" > "$freetz_info_file"
 		echo "export FREETZ_INFO_FIRMWAREVERSION='${AVM_FW_VERSION}'" >> "$freetz_info_file"
-		echo "export FREETZ_INFO_SUBVERSION='${SUBVERSION}'" >> "$freetz_info_file"
+		echo "export FREETZ_INFO_VERSION='${FREETZ_VERSION}'" >> "$freetz_info_file"
 		echo "export FREETZ_INFO_LANG='${FREETZ_TYPE_LANGUAGE}'" >> "$freetz_info_file"
 		echo "export FREETZ_INFO_MAKEDATE='${modmakedate}'" >> "$freetz_info_file"
 		echo "export FREETZ_INFO_IMAGE_NAME='$modimage'" >> "$freetz_info_file"

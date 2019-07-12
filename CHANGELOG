@@ -7,13 +7,13 @@ Latest changes:
 - Build system:
   * binutils:
     + add support for binutils-2.24.x/2.25.x/2.26.x
-  * kconfig 3.11-rc3
+  * kconfig 5.1
   * kernel-/target-toolchain:
     + update gcc-4.7.x version to 4.7.4
     + add support for gcc-4.8.x/4.9.x/5.x
     + add support for x86 target
   * support for a 3rd (auxiliary) firmware
-  * fakeroot: bump version to 1.22
+  * fakeroot: bump version to 1.23
   * lzma SDK: bump lzma SDK version to 4.65
   * sfk: bump version to 1.9.1.2
   * squashfs* tools:
@@ -21,7 +21,7 @@ Latest changes:
     + switch to using a C only version of liblzma instead of the C++ version used so far
   * squashfs3 tools: revise LZMA related patches so that the resulting binaries support
                      both ZLIB and LZMA compression methods at the same time
-  * tar: bump version to 1.30
+  * tar: bump version to 1.32
 
 - New tools and hooks:
   * fwdu: script to download (and unpack) all firmwares from ftp.avm.de
@@ -43,7 +43,7 @@ Latest changes:
     * asterisk-chan-sccp 4.1.0RC1
     * asterisk-gui 2.1.0RC1
     * atop 2.2.3
-    * autossh 1.4e
+    * autossh 1.4g
     * avm-forwarding 0.0.1
     * axTLS wrapper 1.4.9
     * bvi 1.4.0
@@ -51,24 +51,24 @@ Latest changes:
     * decrypt FRITZ!OS configs v0.2 (renamed version of PeterPawn's script decode_passwords)
     * ISC dhcp 4.3.6-P1
     * E-MailRelay 1.9
-    * getdns 1.4.2
+    * getdns 1.5.2
     * gptfdisk 1.0.1
     * iksemel 1.5-git
     * iperf 3.6
     * jansson 2.7
-    * jq 1.5
+    * jq 1.6
     * libavmacl2 (taken from AVM's 7490.06.30 open-source package)
     * libcap 2.24
     * libgsm-1.0.13
     * libmnl 1.0.4
-    * libnettle 3.4
-    * liblz4 1.8.2
+    * libnettle 3.4.1
+    * liblz4 1.9.1
     * libonig 6.7.1
     * libsrtp-1.4.4+20100615
     * libssh2 1.8.0
     * libusb-compat 0.1.5
     * lzma1 4.65
-    * mbed TLS 2.7.6
+    * mbed TLS 2.7.10
     * Mosquitto 1.4.15
     * nzbget 14.1
     * PJProject 2.2.1
@@ -82,7 +82,7 @@ Latest changes:
     * spandsp 0.0.6pre21
     * squashfs-tools 3.4
     * squashfs-tools 4.3 (modified to support AVM-BE format)
-    * WireGuard 0.0.20181018
+    * WireGuard 0.0.20190601
     * xz 5.2.4
 
 - Updated tools and hooks:
@@ -90,30 +90,30 @@ Latest changes:
 - Updated patches:
 
 - Updated packages and libs:
-    * apache 2.4.34
-    * apr 1.6.3
+    * apache 2.4.39
+    * apr 1.7.0
     * apr-util 1.6.1
     * bash 3.2.57
-    * bind 9.11.4
+    * bind 9.11.7
     * bip 0.8.9
     * bird 1.6.4
     * CCID 1.4.18
     * cifs-utils 6.6
     * cryptsetup 1.7.0
-    * curl 7.61.1
+    * curl 7.65.1
     * davfs2 1.5.2
     * dbus 1.8.20
-    * dnsmasq 2.79
+    * dnsmasq 2.80
     * dosfstools 3.0.28
-    * dropbear 2018.76
+    * dropbear 2019.78
     * e2fsprogs 1.42.13
     * espeak 1.48.04
-    * expat 2.2.6
+    * expat 2.2.7
     * ffmpeg 1.2.12
     * freetype 2.5.5
     * fuse 2.9.7
     * gdb 7.9.1
-    * git 2.19.1
+    * git 2.22.0
     * gmp 6.1.2
     * gnu-make 4.2.1
     * gnutls 3.5.19
@@ -122,7 +122,7 @@ Latest changes:
     * hplip 3.14.6
     * htop 1.0.3
     * httpry 0.1.8
-    * ImageMagick 7.0.5-4
+    * ImageMagick 7.0.8-45
     * inadyn-mt 02.28.10
     * iodine 0.7.0
     * jpeg 6b2
@@ -130,7 +130,7 @@ Latest changes:
     * lftp 4.8.4
     * libcapi avm-(7390|7270).05.50
     * libconfig 1.5
-    * libevent 2.1.8
+    * libevent 2.1.10
     * libffi 3.2.1
     * libFLAC 1.3.2
     * libgcrypt 1.8.4
@@ -152,7 +152,7 @@ Latest changes:
     * lsof 4.89
     * ltrace 0.7.91-git
     * lynx 2.8.8
-    * mc 4.8.21
+    * mc 4.8.22
     * minidlna 1.2.1
     * mpc 1.1.0
     * mpfr 3.1.6
@@ -165,18 +165,18 @@ Latest changes:
     * obexftp 0.23
     * openconnect 7.04
     * openssh 7.9p1
-    * openssl 0.9.8zh/1.0.2q
-    * openvpn 2.4.6
-    * pcre 8.42
+    * openssl 0.9.8zh/1.0.2s
+    * openvpn 2.4.7
+    * pcre 8.43
     * pcscd 1.8.12
     * php 5.6.37
-    * privoxy 3.0.26
+    * privoxy 3.0.28
     * polarssl 1.2.19/1.3.22
     * polipo 1.1.1
     * pppd 2.4.7
     * pptpd 1.4.0
     * protobuf-c 1.1.0
-    * Python 2.7.15
+    * Python 2.7.16
     * python-bjoern 1.3.4
     * pycrypto 2.6.1
     * pycurl 7.43.0
@@ -189,15 +189,15 @@ Latest changes:
     * screen 4.6.2
     * slang 2.3.1a
     * smartmontools 6.6
-    * sqlite 3.24.0
+    * sqlite 3.28.0
     * sslh 1.19c
-    * strace 4.9 (kernel-2.6.13) / 4.23 (all other kernel versions)
-    * stunnel 5.49
-    * subversion 1.8.19/1.9.9
+    * strace 4.9 (kernel-2.6.13) / 5.0 (all other kernel versions)
+    * stunnel 5.55
+    * subversion 1.8.19/1.9.10
     * tinc 1.0.35/1.1pre17
     * tinyproxy 1.8.4
     * tmux 2.5
-    * tor 0.3.2.11
+    * tor 0.3.5.8
     * transmission 2.94
     * tree 1.8.0
     * uClibc++ 0.2.5-git
@@ -207,7 +207,7 @@ Latest changes:
     * unrar 5.5.8 (=rar 5.50)
     * usbip 0.1.8
     * util-linux-ng 2.27.1
-    * vim 7.4.2367
+    * vim 8.1.1491
     * vnstat 1.17
     * vsftpd 3.0.3
     * vtun 3.0.4

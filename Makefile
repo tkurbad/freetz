@@ -75,6 +75,10 @@ define MESSAGE
 printf "%s\n" "$(1)" $(SILENT)
 endef
 
+define nMESSAGE
+printf "\n%s" "$(1)" $(SILENT)
+endef
+
 # Print yellow error message and exit
 define ERROR
 printf "\n$(_Y)%s$(_N)\n" "ERROR: $(2)";  exit $(1);
@@ -203,6 +207,7 @@ step: image world tools firmware
 -include .config.cmd
 
 include $(TOOLCHAIN_DIR)/make/Makefile.in
+include $(MAKE_DIR)/Makefile.image.in
 include $(MAKE_DIR)/Makefile.in
 include $(call sorted-wildcard,$(MAKE_DIR)/libs/*/Makefile.in)
 include $(call sorted-wildcard,$(MAKE_DIR)/*/Makefile.in)
@@ -242,51 +247,6 @@ include $(TOOLCHAIN_DIR)/make/target-toolchain.mk
 else
 include $(TOOLCHAIN_DIR)/make/download-toolchain.mk
 endif
-
-DL_IMAGE:=
-image:
-
-# Download Firmware Image
-#  $(1) Suffix
-define DOWNLOAD_FIRMWARE
-ifneq ($(strip $(DL_SOURCE$(1))),)
-IMAGE$(1):=$(DL_FW_DIR)/$(DL_SOURCE$(1))
-DL_IMAGE+=$$(IMAGE$(1))
-image: $$(IMAGE$(1))
-$$(DL_FW_DIR)/$$(DL_SOURCE$(1)): | $(DL_FW_DIR)
-ifeq ($$(strip $$(DL_SITE$(1))),)
-	@echo
-	@echo "Please copy the following file into the '$$(DL_FW_DIR)' sub-directory manually:"
-	@echo "$$(DL_SOURCE$(1))"
-	@echo
-	@exit 3
-else
-	@if [ -n "$$(DL_SOURCE$(1)_CONTAINER)" ]; then \
-		if [ ! -r $$(DL_FW_DIR)/$$(DL_SOURCE$(1)_CONTAINER) ]; then \
-			if ! $$(DL_TOOL) --no-append-servers $$(DL_FW_DIR) "$$(DL_SOURCE$(1)_CONTAINER)" "$$(DL_SITE$(1))" $$(DL_SOURCE$(1)_CONTAINER_MD5) $$(SILENT); then \
-				$$(call ERROR,3,Could not download firmware image. See http://trac.freetz.org/wiki/FAQ#Couldnotdownloadfirmwareimage for details.) \
-			fi; \
-		fi; \
-		case "$$(DL_SOURCE$(1)_CONTAINER_SUFFIX)" in \
-			.zip|.ZIP) \
-				if ! unzip -j $$(QUIETSHORT) $$(DL_FW_DIR)/$$(DL_SOURCE$(1)_CONTAINER) *$$(DL_SOURCE$(1)) -d $$(DL_FW_DIR); then \
-					$$(call ERROR,3,Could not unzip firmware image.) \
-				fi \
-				;; \
-			*) \
-				$$(call ERROR,3,Could not extract firmware image.) \
-				;; \
-		esac \
-	elif ! $$(DL_TOOL) --no-append-servers $$(DL_FW_DIR) "$$(DL_SOURCE$(1))" "$$(DL_SITE$(1))" $$(DL_SOURCE$(1)_MD5) $$(SILENT); then \
-		$$(call ERROR,3,Could not download firmware image. See http://trac.freetz.org/wiki/FAQ#Couldnotdownloadfirmwareimage for details.) \
-	fi
-endif
-endif
-endef
-
-$(eval $(call DOWNLOAD_FIRMWARE))
-$(eval $(call DOWNLOAD_FIRMWARE,2))
-$(eval $(call DOWNLOAD_FIRMWARE,3))
 
 package-list: package-list-clean $(PACKAGES_LIST)
 	@touch .static
@@ -484,14 +444,13 @@ $(eval $(call CONFIG_CLEAN_DEPS,config-clean-deps-keep-busybox,kernel modules$(_
 common-clean:
 	./fwmod_custom clean
 	$(RM) make/Config.in.generated make/external.in.generated
-	$(RM) .static .dynamic .packages .exclude-dist-tmp $(CONFIG_IN_CACHE)
+	$(RM) .static .dynamic .packages $(CONFIG_IN_CACHE)
 	$(RM) -r $(BUILD_DIR)
 	$(RM) -r $(FAKEROOT_CACHE_DIR)
 
 common-dirclean: common-clean $(if $(FREETZ_HAVE_DOT_CONFIG),kernel-dirclean)
 	$(RM) -r $(if $(FREETZ_HAVE_DOT_CONFIG),$(PACKAGES_DIR) $(SOURCE_DIR) $(TARGET_TOOLCHAIN_DIR),$(PACKAGES_DIR_ROOT) $(SOURCE_DIR_ROOT))
 	-cp .defstatic $(ADDON_DIR)/static.pkg
-	-cp .defdynamic $(ADDON_DIR)/dynamic.pkg
 
 common-distclean: common-dirclean
 	$(RM) -r .config .config.compressed .config.old .config.cmd .tmpconfig.h include/config
@@ -505,30 +464,11 @@ common-distclean: common-dirclean
 download-clean:
 	$(RM) -r $(DL_DIR)
 
-dist: distclean download-clean
-	version="$$(cat .version)"; \
-	curdir="$$(basename $$(pwd))"; \
-	dir="$$(cat .version | $(SED) -e 's#^\(ds-[0-9\.]*\).*$$#\1#')"; \
-	( \
-		cd ../; \
-		[ "$$curdir" == "$$dir" ] || mv "$$curdir" "$$dir"; \
-		( \
-			find "$$dir" -type d -name .svn -prune; \
-			$(SED) -e "s/\(.*\)/$$dir\/\1/" "$$dir/.exclude-dist"; \
-			echo "$${dir}/.exclude-dist"; \
-			echo "$${dir}/.exclude-dist-tmp"; \
-		) > "$$dir/.exclude-dist-tmp"; \
-		tar --exclude-from="$${dir}/.exclude-dist-tmp" -cvjf "$${version}.tar.bz2" "$$dir"; \
-		[ "$$curdir" == "$$dir" ] || mv "$$dir" "$$curdir"; \
-		cd "$$curdir"; \
-	)
-	$(RM) .exclude-dist-tmp
-
 # Check .config is up-to-date. Any change to any of the menuconfig configuration files (either manual or one caused by 'svn up') require .config to be updated.
 check-dot-config-uptodateness: $(CONFIG_IN_CACHE)
 	@if [ -e .config -a $(CONFIG_IN_CACHE) -nt .config ]; then \
 		echo -n -e $(_Y); \
-		echo "ERROR: You have either updated to a newer svn version  or changed one of"; \
+		echo "ERROR: You have either updated to a newer git revision or changed one of"; \
 		echo "       the menuconfig files manually  since last modifying  your config."; \
 		echo "       You should either run 'make oldconfig' once before building again"; \
 		echo "       or 'make menuconfig' and change the config (otherwise it will not"; \

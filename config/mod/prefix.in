@@ -25,6 +25,7 @@ config FREETZ_TYPE_PREFIX
 	default "5050"              if FREETZ_TYPE_5050
 	default "5124"              if FREETZ_TYPE_5124
 	default "5140"              if FREETZ_TYPE_5140
+	default "5491"              if FREETZ_TYPE_5491
 	default "wlan"              if FREETZ_TYPE_WLAN
 	default "6490"              if FREETZ_TYPE_6490
 	default "6590"              if FREETZ_TYPE_6590
@@ -59,10 +60,12 @@ config FREETZ_TYPE_PREFIX
 	default "7412"              if FREETZ_TYPE_7412
 	default "7430"              if FREETZ_TYPE_7430
 	default "7490"              if FREETZ_TYPE_7490
+	default "7520"              if FREETZ_TYPE_7520
 	default "7530"              if FREETZ_TYPE_7530
 	default "7560"              if FREETZ_TYPE_7560
 	default "7570"              if FREETZ_TYPE_7570
 	default "7580"              if FREETZ_TYPE_7580
+	default "7583"              if FREETZ_TYPE_7583
 	default "7590"              if FREETZ_TYPE_7590
 	default "W501V"             if FREETZ_TYPE_W501V
 
@@ -82,6 +85,7 @@ config FREETZ_TYPE_PREFIX_SERIES_SUBDIR
 	default "06_8X"             if FREETZ_AVM_VERSION_06_8X
 	default "06_9X"             if FREETZ_AVM_VERSION_06_9X
 	default "07_0X"             if FREETZ_AVM_VERSION_07_0X
+	default "07_1X"             if FREETZ_AVM_VERSION_07_1X
 
 config FREETZ_TYPE_PREFIX_ALIEN_HARDWARE
 	string

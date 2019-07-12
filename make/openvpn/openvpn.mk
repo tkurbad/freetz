@@ -1,5 +1,5 @@
-$(call PKG_INIT_BIN, 2.4.6)
-$(PKG)_SOURCE_SHA256:=4f6434fa541cc9e363434ea71a16a62cf2615fb2f16af5b38f43ab5939998c26
+$(call PKG_INIT_BIN, 2.4.7)
+$(PKG)_SOURCE_SHA256:=a42f53570f669eaf10af68e98d65b531015ff9e12be7a62d9269ea684652f648
 $(PKG)_SOURCE:=$(pkg)-$($(PKG)_VERSION).tar.xz
 $(PKG)_SITE:=https://swupdate.openvpn.net/community/releases,http://build.openvpn.net/downloads/releases
 
@@ -31,16 +31,11 @@ $(PKG)_REBUILD_SUBOPTS += FREETZ_PACKAGE_OPENVPN_STATIC
 $(PKG)_REBUILD_SUBOPTS += FREETZ_TARGET_IPV6_SUPPORT
 $(PKG)_REBUILD_SUBOPTS += $(if $(FREETZ_PACKAGE_OPENVPN_MBEDTLS),FREETZ_LIB_libmbedcrypto_WITH_BLOWFISH)
 
-$(PKG)_CONFIGURE_OPTIONS += --disable-http-proxy
 $(PKG)_CONFIGURE_PRE_CMDS += $(call PKG_PREVENT_RPATH_HARDCODING,./configure)
-$(PKG)_CONFIGURE_PRE_CMDS += $(call PKG_MAKE_AC_VARIABLES_PACKAGE_SPECIFIC,lib_mbedtls_mbedtls_ssl_init)
-# don't cache any pkg_cv_* variable
-$(PKG)_CONFIGURE_PRE_CMDS += $(SED) -i -r -e 's,pkg_cv_,openvpn_,g' ./configure;
 
-$(PKG)_CONFIGURE_PRE_CMDS += $(call PKG_MAKE_AC_VARIABLES_PACKAGE_SPECIFIC,path_IFCONFIG path_IPROUTE path_ROUTE)
-$(PKG)_CONFIGURE_ENV += $(pkg)_path_IFCONFIG=/sbin/ifconfig
-$(PKG)_CONFIGURE_ENV += $(pkg)_path_IPROUTE=/sbin/ip
-$(PKG)_CONFIGURE_ENV += $(pkg)_path_ROUTE=/sbin/route
+$(PKG)_CONFIGURE_ENV += ac_cv_path_IFCONFIG=/sbin/ifconfig
+$(PKG)_CONFIGURE_ENV += ac_cv_path_IPROUTE=/sbin/ip
+$(PKG)_CONFIGURE_ENV += ac_cv_path_ROUTE=/sbin/route
 
 $(PKG)_CONFIGURE_PRE_CMDS += $(call PKG_ADD_EXTRA_FLAGS,(C|LD)FLAGS|LIBS)
 
@@ -57,12 +52,10 @@ $(PKG)_CONFIGURE_OPTIONS += --disable-plugins
 $(PKG)_CONFIGURE_OPTIONS += --disable-port-share
 $(PKG)_CONFIGURE_OPTIONS += $(if $(FREETZ_PACKAGE_OPENVPN_WITH_MGMNT),--enable-management,--disable-management)
 $(PKG)_CONFIGURE_OPTIONS += --disable-pkcs11
-$(PKG)_CONFIGURE_OPTIONS += --disable-socks
 $(PKG)_CONFIGURE_OPTIONS += $(if $(FREETZ_PACKAGE_OPENVPN_OPENSSL),--with-crypto-library=openssl)
 $(PKG)_CONFIGURE_OPTIONS += $(if $(FREETZ_PACKAGE_OPENVPN_MBEDTLS),--with-crypto-library=mbedtls)
 $(PKG)_CONFIGURE_OPTIONS += $(if $(FREETZ_PACKAGE_OPENVPN_USE_IPROUTE),--enable-iproute2)
 $(PKG)_CONFIGURE_OPTIONS += $(if $(FREETZ_PACKAGE_OPENVPN_ENABLE_SMALL),--enable-small,--disable-small)
-$(PKG)_CONFIGURE_OPTIONS += $(if $(FREETZ_TARGET_IPV6_SUPPORT),--enable-ipv6,--disable-ipv6)
 
 $(PKG_SOURCE_DOWNLOAD)
 $(PKG_UNPACKED)
