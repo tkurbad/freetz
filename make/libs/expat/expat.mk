@@ -13,6 +13,7 @@ $(PKG)_CONFIGURE_OPTIONS += --enable-static
 $(PKG)_CONFIGURE_OPTIONS += --without-xmlwf
 $(PKG)_CONFIGURE_OPTIONS += --without-examples
 $(PKG)_CONFIGURE_OPTIONS += --without-tests
+$(PKG)_CONFIGURE_OPTIONS += --without-docbook
 
 $(PKG_SOURCE_DOWNLOAD)
 $(PKG_UNPACKED)
